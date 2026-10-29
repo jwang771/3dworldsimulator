@@ -1,0 +1,326 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>3D World Simulator</title>
+<meta name="description" content="A 3D world model for bimanual robot manipulation: predicted 3D scenes rendered from any camera at 50 frames per second.">
+<style>
+:root { --ink: #1a1a1a; --muted: #6b6b6b; --faint: #9a9a9a; --line: #e4e4e4; --wash: #f5f5f3; --ok: #1f7a3f; --bad: #b03a2e; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+body { margin: 0; background: #fff; color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 17px; line-height: 1.55; }
+a { color: inherit; }
+main { max-width: 1040px; margin: 0 auto; padding: 56px 24px 96px; }
+.col { max-width: 700px; }
+header h1 { font-size: 44px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.08; margin: 0 0 14px; }
+header .sub { font-size: 20px; color: var(--muted); max-width: 720px; margin: 0 0 22px; line-height: 1.4; }
+header .authors { margin: 0 0 4px; }
+header .venue { color: var(--muted); margin: 0 0 14px; }
+header .links { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 16px; margin: 0 0 36px; }
+header .links a { text-decoration: underline; text-underline-offset: 3px; }
+header .links span { color: var(--faint); }
+figure { margin: 0; }
+.frame { width: 100%; background: var(--wash); border-radius: 4px; overflow: hidden; }
+.frame video, .frame img, .frame iframe { display: block; width: 100%; height: auto; border: 0; }
+figcaption { font-size: 14px; color: var(--muted); margin-top: 8px; line-height: 1.5; }
+figcaption b { color: var(--ink); font-weight: 600; }
+.contents { margin: 44px 0 0; padding: 22px 0 0; border-top: 1px solid var(--line); }
+.contents h2 { font-size: 13px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin: 0 0 10px; }
+.contents ol { margin: 0; padding: 0; list-style: none; columns: 2; column-gap: 32px; max-width: 760px; }
+.contents li { break-inside: avoid; padding: 3px 0; }
+.contents li a { text-decoration: none; }
+.contents li a:hover { text-decoration: underline; text-underline-offset: 3px; }
+.contents li .n { display: inline-block; width: 1.6em; color: var(--faint); font-variant-numeric: tabular-nums; }
+section { margin-top: 72px; padding-top: 28px; border-top: 1px solid var(--line); }
+section h2 { font-size: 27px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; margin: 0 0 14px; }
+section h2 .n { color: var(--faint); font-weight: 500; margin-right: 10px; font-variant-numeric: tabular-nums; }
+section p { margin: 0 0 12px; }
+.media { margin-top: 20px; }
+.picker { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin: 18px 0 12px; }
+.picker button { font: inherit; font-size: 14px; color: var(--muted); background: none; border: 0; padding: 0; cursor: pointer; text-align: left; }
+.picker button .th { aspect-ratio: 16 / 9; background: var(--wash); border-radius: 4px; overflow: hidden; outline: 2px solid transparent; outline-offset: 2px; transition: outline-color .12s; }
+.picker button .th img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.picker button span { display: block; margin-top: 6px; }
+.picker button:hover { color: var(--ink); }
+.picker button[aria-selected="true"] { color: var(--ink); } .picker button[aria-selected="true"] .th { outline-color: var(--ink); }
+@media (max-width: 760px) { .picker { grid-template-columns: repeat(3, 1fr); } }
+.tabs { display: flex; flex-wrap: wrap; gap: 2px 18px; margin: 18px 0 10px; font-size: 16px; }
+.tabs button { font: inherit; color: var(--muted); background: none; border: 0; padding: 4px 0; cursor: pointer; border-bottom: 2px solid transparent; }
+.tabs button:hover { color: var(--ink); }
+.tabs button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--ink); }
+.subtabs { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; font-size: 14px; color: var(--muted); margin: 0 0 10px; }
+.subtabs button { font: inherit; color: var(--muted); background: none; border: 0; padding: 2px 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: transparent; }
+.subtabs button:hover { color: var(--ink); }
+.subtabs button[aria-pressed="true"] { color: var(--ink); text-decoration-color: var(--ink); }
+.subtabs button:disabled { opacity: .35; cursor: default; }
+.stage { position: relative; aspect-ratio: 16 / 9; background: var(--wash); border-radius: 4px; overflow: hidden; }
+.stage video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.stage .note { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 14px; pointer-events: none; }
+.bar { display: flex; align-items: center; gap: 10px; margin-top: 8px; font-size: 13px; color: var(--muted); }
+.bar button { font: inherit; width: 28px; height: 28px; border-radius: 50%; border: 1px solid #ccc; background: #fff; cursor: pointer; display: grid; place-items: center; flex: none; }
+.bar input[type=range] { flex: 1; min-width: 0; accent-color: #1a1a1a; }
+.bar .t { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.pair .cell .frame { aspect-ratio: var(--ar, 1); }
+.pair .cell .frame video { width: 100%; height: 100%; object-fit: contain; }
+.pair .tag { font-size: 14px; margin-top: 6px; }
+.pair .tag.ok { color: var(--ok); } .pair .tag.bad { color: var(--bad); }
+@media (max-width: 640px) { .pair { grid-template-columns: 1fr; } }
+.demo { position: relative; aspect-ratio: 16 / 9; background: var(--wash); border-radius: 4px; overflow: hidden; }
+.demo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(.6); opacity: .8; }
+.demo .cover { position: absolute; inset: 0; display: grid; place-items: center; }
+.demo .cover button { font: inherit; font-size: 16px; padding: 10px 18px; border: 1px solid var(--ink); background: #fff; cursor: pointer; border-radius: 3px; }
+.demo .cover button:hover { background: var(--ink); color: #fff; }
+.demo iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.keys { font-size: 14px; color: var(--muted); margin-top: 10px; line-height: 1.7; }
+.keys b { color: var(--ink); font-weight: 600; }
+.keys kbd { font: inherit; font-size: 13px; padding: 0 5px; border: 1px solid #d5d5d5; border-bottom-width: 2px; border-radius: 3px; background: #fafafa; color: var(--ink); }
+.square { max-width: 640px; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 28px; margin: 24px 0 0; padding: 0; list-style: none; font-size: 15px; max-width: 760px; }
+.facts li { padding: 10px 0; border-top: 1px solid var(--line); }
+.facts li b { display: block; font-weight: 600; margin-bottom: 2px; }
+.facts li span { color: var(--muted); }
+pre { background: #f6f6f6; border-radius: 4px; padding: 14px 16px; font-size: 13px; line-height: 1.5; overflow-x: auto; }
+footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 14px; color: var(--muted); }
+/* on wide screens a quiet rail lists the sections and follows the scroll */
+.rail { display: none; }
+@media (min-width: 1400px) {
+  .rail { display: block; position: fixed; top: 50%; left: 22px; transform: translateY(-50%); width: calc((100vw - 1040px) / 2 - 48px); max-width: 190px; font-size: 13px; line-height: 1.5; }
+  .rail a { display: block; color: var(--faint); text-decoration: none; padding: 3px 0 3px 12px; border-left: 2px solid var(--line); }
+  .rail a:hover { color: var(--ink); }
+  .rail a.on { color: var(--ink); border-left-color: var(--ink); }
+}
+@media (max-width: 640px) { main { padding: 36px 16px 64px; } header h1 { font-size: 34px; } header .sub { font-size: 18px; } .contents ol { columns: 1; } }
+</style>
+</head>
+<body>
+<nav class="rail" id="rail" aria-label="On this page"></nav>
+<main>
+  <header>
+    <h1>3D World Simulator</h1>
+    <p class="sub">A 3D world model for two-arm robot manipulation. It predicts the scene as a 3D latent grid and renders it from any camera, in real time, with tactile signals attached to the geometry.</p>
+    <p class="authors">Authors here</p>
+    <p class="venue">Affiliation · 2026</p>
+    <div class="links"><span>Paper (soon)</span><span>Code (soon)</span><a href="#demo">Interactive demo</a><a href="#rollouts">Rollouts</a><a href="#cite">Citation</a></div>
+    <figure>
+      <div class="frame"><video data-auto src="media/teaser.mp4" poster="media/teaser.jpg" muted loop playsinline preload="metadata"></video></div>
+      <figcaption><b>Teaser.</b> Interactive use of the cloth model from the keyboard, the model's internal geometry and tactile predictions, four more tasks, a change of room and robot, policies evaluated and trained inside the model, and the same recipe on a larger set of deformable objects.</figcaption>
+    </figure>
+    <div class="contents">
+      <h2>Contents</h2>
+      <ol id="toc"></ol>
+    </div>
+  </header>
+
+  <section id="overview" class="col">
+    <h2><span class="n">1</span>What the model does</h2>
+    <p>We train the model on multi-view RGB-D recordings of a two-arm robot doing a handful of manipulation tasks: folding a towel, threading a rope through a pad eye, handling a box, inserting a plug, pushing a T block and placing a marker. Given the last few frames and the robot's action, it predicts the next state of the scene as a 3D latent grid. A decoder turns that grid into particles, and we render the particles as Gaussians, so a prediction can be viewed from any camera rather than only from the ones that recorded the data.</p>
+    <p>Everything on this page is rendered from the model's predictions, apart from the real-robot clip in the policy training section. The scanned room around the table is a separate asset that we composite behind the prediction, which is also what lets us swap it.</p>
+    <ul class="facts">
+      <li><b>50+ frames per second</b><span>prediction and rendering, so it runs from a keyboard or a policy in the loop</span></li>
+      <li><b>Any camera</b><span>static, orbiting or on the wrist; the wrist views are rendered from the predicted gripper pose</span></li>
+      <li><b>Six tasks, one recipe</b><span>cloth, rope, box, plug, Push-T and marker, each trained from its own recordings</span></li>
+      <li><b>Tactile signals</b><span>predicted on the particles, spatially aligned with the geometry</span></li>
+    </ul>
+  </section>
+
+  <section id="demo">
+    <div class="col">
+      <h2><span class="n">2</span>Interactive demo</h2>
+      <p>The cloth model runs on a GPU on Modal and streams its render to the browser. Press start and a container is started for you, which takes about 45 seconds the first time. Then move the arms with the keys below, or drag the handles that appear on the grippers. It is a research demo rather than a product: if you push the arms somewhere the training data never went, the cloth will look strange.</p>
+    </div>
+    <div class="media">
+      <div class="demo" id="demoBox">
+        <img src="media/teaser.jpg" alt="">
+        <div class="cover" id="demoCover"><button id="demoStart">Start the demo (starts a GPU session)</button></div>
+      </div>
+      <div class="keys">
+        <b>Arm 0</b> <kbd>U</kbd><kbd>O</kbd> up and down, <kbd>I</kbd><kbd>K</kbd> forward and back, <kbd>J</kbd><kbd>L</kbd> left and right. <b>Arm 1</b> <kbd>Q</kbd><kbd>E</kbd>, <kbd>W</kbd><kbd>S</kbd>, <kbd>A</kbd><kbd>D</kbd> the same way. <kbd>H</kbd> opens or closes the gripper. <kbd>R</kbd> restarts from the chosen frame. Drag to orbit the camera, shift-drag to pan, scroll to zoom. <a href="https://jwang771--3dws-demo.us-east.modal.run" target="_blank" rel="noopener">Open the demo in its own tab</a> if the embedded version is too small.
+      </div>
+    </div>
+  </section>
+
+  <section id="rollouts">
+    <div class="col">
+      <h2><span class="n">3</span>Rollouts on six tasks</h2>
+      <p>Pick a task below. Each clip is an open-loop rollout: the model gets a few real frames to start from, then runs on its own from the recorded actions for the rest of the episode. We render it from a camera that orbits in front of the table, a viewpoint none of the real cameras had, and play the 10 Hz rollout at 3×. The second row of buttons switches to what the model works with internally: the latent grid the dynamics run on, the voxel occupancy the decoder produces on the way to particles, the particles themselves with the predicted tactile signal, and the model's output on its own, without the arm splats and the scanned room we add for the final render.</p>
+    </div>
+    <div class="media">
+      <div class="picker" id="taskTabs" role="tablist"></div>
+      <div class="subtabs" id="modeTabs"></div>
+      <div class="stage" id="stage"><div class="note" id="stageNote"></div></div>
+      <div class="bar">
+        <button id="play" aria-label="Pause">
+          <svg id="playIcon" width="10" height="10" viewBox="0 0 12 12"><rect x="1.5" y="1" width="3" height="10" fill="currentColor"/><rect x="7.5" y="1" width="3" height="10" fill="currentColor"/></svg>
+        </button>
+        <input type="range" id="scrub" min="0" max="1" step="0.001" value="0" aria-label="Time">
+        <span class="t" id="time">0.0 s</span>
+      </div>
+      <figcaption id="rollCap"></figcaption>
+    </div>
+  </section>
+
+  <section id="backgrounds">
+    <div class="col">
+      <h2><span class="n">4</span>Controllable backgrounds and robot embodiments</h2>
+      <p>The predicted scene and the room are separate things, so a rollout can be relit and placed in a different room, or drawn with a different robot. Here one box episode is carried through four scanned rooms. The first room keeps the original arms; the others use a pair of SO-101 arms posed from the same predicted joint angles. The clip ends with four tasks side by side.</p>
+    </div>
+    <figure class="media">
+      <div class="frame"><video data-auto src="media/backgrounds.mp4" poster="media/backgrounds.jpg" muted loop playsinline preload="metadata"></video></div>
+      <figcaption><b>Rooms and arms.</b> Lab, gallery, warehouse, wood-panelled room and dining room, then the 2 × 2 comparison.</figcaption>
+    </figure>
+  </section>
+
+  <section id="evaluation">
+    <div class="col">
+      <h2><span class="n">5</span>Policy evaluation in the model</h2>
+      <p>A policy can be run inside the model instead of on the robot: we render the camera views the policy expects, it returns an action, and the model predicts what happens next. The model's prediction is detailed enough to tell a success from a failure. For each task we picked one rollout that ends in success and one that does not. For Push-T the goal pose is drawn as an outline; for the cloth we look at whether the towel ends up folded. Plug insertion compares two different policies from the same start.</p>
+    </div>
+    <div class="media">
+      <div class="tabs" id="peTabs" role="tablist"></div>
+      <div class="subtabs" id="peViews"></div>
+      <div class="pair" id="pePair"></div>
+      <figcaption id="peCap"></figcaption>
+    </div>
+  </section>
+
+  <section id="training">
+    <div class="col">
+      <h2><span class="n">6</span>Policies trained purely in the model</h2>
+      <p>This one is real footage, not a render. The policies here were trained only on data produced by the world model and are running on the robot, sped up 20×.</p>
+    </div>
+    <figure class="media">
+      <div class="frame"><video data-auto src="media/training.mp4" poster="media/training.jpg" muted loop playsinline preload="metadata"></video></div>
+      <figcaption><b>Real robot.</b> Cloth, plug and Push-T policies trained on model rollouts, executed on the hardware.</figcaption>
+    </figure>
+  </section>
+
+  <section id="objects">
+    <div class="col">
+      <h2><span class="n">7</span>Scaling to diverse objects</h2>
+      <p>Deform360 is the same kind of model trained on a collection of deformable objects (hats, plush toys, towels, ropes, sleeves). The camera starts on one object and pulls back to show the rest. All of them are predictions.</p>
+    </div>
+    <figure class="media square">
+      <div class="frame"><video data-auto src="media/deform360.mp4" poster="media/deform360.jpg" muted loop playsinline preload="metadata"></video></div>
+    </figure>
+  </section>
+
+  <section id="planning">
+    <div class="col">
+      <h2><span class="n">8</span>Downstream planning</h2>
+      <p>Since the model can imagine the result of an action sequence, we can plan with it: sample candidate sequences, roll each one out in the model, and execute the best. The objects here were not in the training data.</p>
+    </div>
+    <figure class="media">
+      <div class="frame"><video data-auto src="media/planning.mp4" poster="media/planning.jpg" muted loop playsinline preload="metadata"></video></div>
+    </figure>
+  </section>
+
+  <section id="cite" class="col">
+    <h2><span class="n">9</span>Citation</h2>
+<pre>@article{3dworldsimulator2026,
+  title   = {3D World Simulator},
+  author  = {...},
+  journal = {...},
+  year    = {2026}
+}</pre>
+  </section>
+
+  <footer>Videos are rendered from the world model unless stated otherwise. The scanned room, the arm splats and the lighting of the alternative rooms are assets composited around the prediction.</footer>
+</main>
+
+<script>
+const $ = (id) => document.getElementById(id);
+// contents list and the side rail are built from the sections
+const secs = [...document.querySelectorAll("main > section")];
+secs.forEach((s) => { const h = s.querySelector("h2"); const title = h.textContent.replace(/^\d+\s*/, ""); const n = h.querySelector(".n").textContent;
+  const li = document.createElement("li"); li.innerHTML = `<a href="#${s.id}"><span class="n">${n}</span>${title}</a>`; $("toc").appendChild(li);
+  const a = document.createElement("a"); a.href = `#${s.id}`; a.textContent = title; a.dataset.id = s.id; $("rail").appendChild(a); });
+new IntersectionObserver((es) => { es.forEach((e) => { if (e.isIntersecting) document.querySelectorAll("#rail a").forEach((a) => a.classList.toggle("on", a.dataset.id === e.target.id)); }); }, { rootMargin: "-30% 0px -60% 0px" }).observe && secs.forEach((s) => new IntersectionObserver((es) => { es.forEach((e) => { if (e.isIntersecting) document.querySelectorAll("#rail a").forEach((a) => a.classList.toggle("on", a.dataset.id === e.target.id)); }); }, { rootMargin: "-30% 0px -60% 0px" }).observe(s));
+// videos play only while on screen
+const io = new IntersectionObserver((es) => es.forEach((e) => { const v = e.target; if (e.isIntersecting && e.intersectionRatio >= 0.35) { if (v.dataset.user !== "paused") v.play().catch(() => {}); } else v.pause(); }), { threshold: [0, 0.35, 1] });
+document.querySelectorAll("video[data-auto]").forEach((v) => { v.addEventListener("click", () => { if (v.paused) { v.dataset.user = ""; v.play().catch(() => {}); } else { v.dataset.user = "paused"; v.pause(); } }); io.observe(v); });
+// demo: the GPU session starts only when asked
+$("demoStart").addEventListener("click", () => {
+  const f = document.createElement("iframe"); f.src = "https://jwang771--3dws-demo.us-east.modal.run"; f.allow = "fullscreen"; f.title = "Interactive demo";
+  $("demoBox").appendChild(f); $("demoCover").remove(); f.focus();
+});
+// rollouts
+const TASKS = [
+  { id: "cloth", name: "Cloth", cap: "Towel folding, episode 1010." },
+  { id: "box", name: "Box", cap: "Box handling, episode 2013." },
+  { id: "plug", name: "Plug", cap: "Plug insertion, episode 31. One arm holds the socket." },
+  { id: "pusht", name: "Push-T", cap: "Push-T, episode 113." },
+  { id: "marker", name: "Marker", cap: "Marker placement, episode 48." },
+  { id: "rope_wrist", name: "Rope", cap: "Rope through a pad eye, episode 24." },
+];
+const MODES = [
+  { id: "splats", label: "Render", cap: "Full render: decoded Gaussians, arm splats, scanned room." },
+  { id: "points", label: "Particles", cap: "Everything as points; the tactile pads light up on contact." },
+  { id: "latents", label: "Latent grid", cap: "Occupied cells of the 64 × 32 × 64 latent grid, coloured by their first principal component." },
+  { id: "voxels", label: "Voxels", cap: "The 128 × 64 × 128 occupancy the decoder produces before the particles." },
+  { id: "raw", label: "Model output only", cap: "What the model decodes on its own, including its own version of the arms. No arm splats, no room." },
+];
+let task = "cloth", mode = "splats", vids = {}, cur = null, playing = true;
+TASKS.forEach((t) => { const b = document.createElement("button"); b.role = "tab"; b.innerHTML = `<div class="th"><img src="pan/${t.id}/poster.jpg" alt="" loading="lazy"></div><span>${t.name}</span>`; b.dataset.id = t.id; b.addEventListener("click", () => selectTask(t.id)); $("taskTabs").appendChild(b); });
+MODES.forEach((m) => { const b = document.createElement("button"); b.textContent = m.label; b.dataset.id = m.id; b.addEventListener("click", () => selectMode(m.id)); $("modeTabs").appendChild(b); });
+function selectTask(id) {
+  task = id; document.querySelectorAll("#taskTabs button").forEach((b) => b.setAttribute("aria-selected", b.dataset.id === id ? "true" : "false"));
+  Object.values(vids).forEach((v) => { v.pause(); v.remove(); }); vids = {}; cur = null;
+  const have = (window.PAN || {})[id]; $("stageNote").textContent = have ? "" : "Not rendered yet";
+  if (!have) { caption(); return; }
+  if (!have.includes(mode)) mode = "splats";
+  show(mode, 0); caption();
+}
+function video(m) {
+  if (vids[m]) return vids[m];
+  const v = document.createElement("video"); v.muted = true; v.loop = true; v.playsInline = true; v.preload = "auto"; v.src = `pan/${task}/${m}.mp4`; v.style.opacity = 0; v.style.transition = "opacity .15s";
+  $("stage").appendChild(v); vids[m] = v; return v;
+}
+function show(m, t) {
+  const v = video(m); const old = cur; cur = v;
+  Object.values(vids).forEach((x) => { x.style.opacity = x === v ? 1 : 0; });
+  const go = () => { try { v.currentTime = t; } catch (e) {} if (playing && onScreen) v.play().catch(() => {}); if (old && old !== v) old.pause(); };
+  v.readyState >= 1 ? go() : v.addEventListener("loadedmetadata", go, { once: true });
+}
+function selectMode(id) { const have = (window.PAN || {})[task]; if (!have || !have.includes(id)) return; mode = id; show(id, cur ? cur.currentTime : 0); caption(); }
+function caption() {
+  const have = (window.PAN || {})[task] || [];
+  document.querySelectorAll("#modeTabs button").forEach((b) => { b.setAttribute("aria-pressed", b.dataset.id === mode ? "true" : "false"); b.disabled = !have.includes(b.dataset.id); });
+  const t = TASKS.find((x) => x.id === task), m = MODES.find((x) => x.id === mode);
+  $("rollCap").textContent = have.length ? `${t.cap} ${m.cap}` : `${t.cap} Not rendered yet.`;
+}
+let onScreen = false;
+new IntersectionObserver((es) => { onScreen = es[0].isIntersecting; if (cur) (onScreen && playing ? cur.play().catch(() => {}) : cur.pause()); }, { threshold: 0.25 }).observe($("stage"));
+$("play").addEventListener("click", () => { playing = !playing; if (cur) (playing ? cur.play().catch(() => {}) : cur.pause()); $("playIcon").innerHTML = playing ? '<rect x="1.5" y="1" width="3" height="10" fill="currentColor"/><rect x="7.5" y="1" width="3" height="10" fill="currentColor"/>' : '<path d="M2.5 1 L11 6 L2.5 11 Z" fill="currentColor"/>'; });
+$("scrub").addEventListener("input", (e) => { if (cur && cur.duration) cur.currentTime = e.target.value * cur.duration; });
+(function tick() { if (cur && cur.duration) { $("scrub").value = cur.currentTime / cur.duration; $("time").textContent = `${cur.currentTime.toFixed(1)} / ${cur.duration.toFixed(1)} s`; } requestAnimationFrame(tick); })();
+// policy evaluation: left success, right failure
+const PE = {
+  pusht: { name: "Push-T", views: [{ id: "cam0", label: "Policy camera", ok: "media/pe_pusht_ok_outline.mp4", bad: "media/pe_pusht_fail_outline.mp4", ar: "650 / 720" }],
+    cap: "Diffusion Policy, seen through the camera crop the policy uses. Left: the T ends on the goal outline. Right: a policy trained on simulated data stops short." },
+  plug: { name: "Plug", views: [{ id: "cam1", label: "Static camera", ok: "media/pe_plug_b_cam1.mp4", bad: "media/pe_plug_a_cam1.mp4", ar: "750 / 600" }, { id: "wrist", label: "Wrist camera", ok: "media/pe_plug_b_wrist3.mp4", bad: "media/pe_plug_a_wrist3.mp4", ar: "16 / 9" }],
+    cap: "Two policies' logged actions from the same start, replayed in the model. The wrist view is rendered from the predicted wrist pose." },
+  cloth: { name: "Cloth", views: [{ id: "cam1", label: "Static camera", ok: "media/pe_cloth_ok_cam1.mp4", bad: "media/pe_cloth_fail_cam1.mp4", ar: "740 / 560" }, { id: "wrist3", label: "Wrist camera, arm 0", ok: "media/pe_cloth_ok_wrist3.mp4", bad: "media/pe_cloth_fail_wrist3.mp4", ar: "1280 / 648" }, { id: "wrist4", label: "Wrist camera, arm 1", ok: "media/pe_cloth_ok_wrist4.mp4", bad: "media/pe_cloth_fail_wrist4.mp4", ar: "1280 / 648" }],
+    cap: "Two evaluation episodes of an ACT policy. Left: the towel ends folded. Right: it ends crumpled." },
+};
+let peTask = "pusht", peView = 0, peVids = [];
+Object.entries(PE).forEach(([k, v]) => { const b = document.createElement("button"); b.role = "tab"; b.textContent = v.name; b.dataset.id = k; b.addEventListener("click", () => { peTask = k; peView = 0; renderPE(); }); $("peTabs").appendChild(b); });
+function renderPE() {
+  document.querySelectorAll("#peTabs button").forEach((b) => b.setAttribute("aria-selected", b.dataset.id === peTask ? "true" : "false"));
+  const T = PE[peTask]; const vt = $("peViews"); vt.innerHTML = ""; vt.hidden = T.views.length < 2;
+  T.views.forEach((v, i) => { const b = document.createElement("button"); b.textContent = v.label; b.setAttribute("aria-pressed", i === peView ? "true" : "false"); b.addEventListener("click", () => { peView = i; renderPE(); }); vt.appendChild(b); });
+  const v = T.views[peView]; peVids.forEach((x) => x.pause());
+  $("pePair").innerHTML = ["ok", "bad"].map((k) => `<div class="cell"><div class="frame" style="--ar:${v.ar}"><video src="${v[k]}" muted loop playsinline preload="auto"></video></div><div class="tag ${k}">${k === "ok" ? "Success" : "Failure"}</div></div>`).join("");
+  $("peCap").textContent = T.cap; peVids = [...$("pePair").querySelectorAll("video")]; let n = 0;
+  peVids.forEach((x) => x.addEventListener("canplaythrough", () => { if (++n === peVids.length) peVids.forEach((y) => { y.currentTime = 0; if (peOn) y.play().catch(() => {}); }); }, { once: true }));
+}
+let peOn = false;
+new IntersectionObserver((es) => { peOn = es[0].isIntersecting; peVids.forEach((y) => (peOn ? y.play().catch(() => {}) : y.pause())); }, { threshold: 0.25 }).observe($("pePair"));
+setInterval(() => { if (peVids.length === 2 && Math.abs(peVids[0].currentTime - peVids[1].currentTime) > 0.15) peVids[1].currentTime = peVids[0].currentTime; }, 500);
+renderPE();
+</script>
+<script src="pan/manifest.js"></script>
+<script>selectTask(task);</script>
+</body>
+</html>

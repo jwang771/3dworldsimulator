@@ -1,0 +1,4 @@
+review/
+*.bak*
+*.bak_*
+.DS_Store

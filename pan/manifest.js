@@ -1,0 +1,1 @@
+window.PAN = {"cloth": ["splats", "points", "latents", "voxels", "raw"], "box": ["splats", "points", "latents", "voxels", "raw"], "plug": ["splats", "points", "latents", "voxels", "raw"], "pusht": ["splats", "points", "latents", "voxels", "raw"], "marker": ["splats", "points", "latents", "voxels", "raw"], "rope_wrist": ["splats", "points", "latents", "voxels", "raw"]};
