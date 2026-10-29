@@ -143,8 +143,8 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
 
   <section id="rollouts">
     <div class="col">
-      <h2><span class="n">3</span>Rollouts on six tasks</h2>
-      <p>Pick a task below. Each clip is an open-loop rollout: the model gets a few real frames to start from, then runs on its own from the recorded actions for the rest of the episode. We render it from a camera that orbits in front of the table, a viewpoint none of the real cameras had, and play the 10 Hz rollout at 3×. The second row of buttons switches to what the model works with internally: the latent grid the dynamics run on, the voxel occupancy the decoder produces on the way to particles, the particles themselves with the predicted tactile signal, and the model's output on its own, without the arm splats and the scanned room we add for the final render.</p>
+      <h2><span class="n">3</span>Multimodal 3D Video Prediction</h2>
+      <p>3D World Simulator supports diverse robot manipulation tasks, spanning deformable objects, articulated objects and in-hand manipulation. Pick a task below to see an open-loop rollout of the model: it is given a few real frames to start from and then runs on its own from the recorded actions. Because the prediction is 3D, the same rollout can be viewed in several ways: rendered from a novel viewpoint, as the predicted 3D particles with their tactile signal, as the intermediate voxel representation, and as the latent representation the dynamics model operates on.</p>
     </div>
     <div class="media">
       <div class="picker" id="taskTabs" role="tablist"></div>
@@ -163,8 +163,8 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
 
   <section id="backgrounds">
     <div class="col">
-      <h2><span class="n">4</span>Controllable backgrounds and robot embodiments</h2>
-      <p>The predicted scene and the room are separate things, so a rollout can be relit and placed in a different room, or drawn with a different robot. Here one box episode is carried through four scanned rooms. The first room keeps the original arms; the others use a pair of SO-101 arms posed from the same predicted joint angles. The clip ends with four tasks side by side.</p>
+      <h2><span class="n">4</span>Controllable Variation in Backgrounds and Robot Embodiments</h2>
+      <p>The 3D nature of our model makes it far more controllable and editable than 2D video prediction models. The base model does not rely on segmentation masks, but it can be fine-tuned to predict the manipulated scene on top of a separately captured background, so the prediction and the room become independent assets. This lets us place a rollout in different backgrounds and draw it with different robot embodiments, posed from the model's predicted joint states. And since the output is 3D Gaussians, existing relighting methods apply directly. Below, one box episode is carried through four scanned rooms, the first with the original arms and the rest with a pair of SO-101 arms, ending with four tasks side by side.</p>
     </div>
     <figure class="media">
       <div class="frame"><video data-auto src="media/backgrounds.mp4" poster="media/backgrounds.jpg" muted loop playsinline preload="metadata"></video></div>
