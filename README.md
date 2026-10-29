@@ -25,6 +25,19 @@ white to the cloth film's level; `bash ../site_media_v3.sh pans`, gains in `../p
 - `media/pe_*.mp4`: policy-evaluation clips. Push-T is rendered without burnt-in text (`tmp/policy_eval_1023/pv_site.sh`, `_outline` keeps the goal outline, `_plain` has none).
 - `pan/<task>/<mode>.mp4`: rollout views (splats, points, latents, voxels, raw). Box, cloth and marker from `pan2`; rope, Push-T and plug from `pan3` (padeye kept, distilled joint heads).
 
+## Editing from anywhere (git)
+
+This directory is a git repository (`main`, 66 files, 273 MB; `review/` and `*.bak*` are ignored). The workflow is: edit anywhere, push, GitHub Pages republishes within a minute.
+
+    git clone git@github.com:3dworldsimulator/3dworldsimulator.github.io.git   # laptop, another workstation, Claude Code web
+    # edit index.html (or drop new clips into media/ and pan/)
+    python3 -m http.server 8150                                                 # preview at http://localhost:8150
+    git commit -am "..." && git push
+
+The corsair copy (`relight/web/site`) is the clone that the `site-http` preview unit serves on :8150; pull there before regenerating media.
+Only the encoded clips live in the repo; the renders and encoders (`../site_media_v3.sh`, `../pan4_task.sh`, `../../3dws_teaser`) stay on corsair,
+so a new clip is: render on corsair -> encode into `media/` or `pan/` -> commit -> push. Keep single files under 100 MB and the repository under 1 GB.
+
 ## Publishing on GitHub Pages
 
 1. Create the organization `3dworldsimulator` on GitHub and a repository named `3dworldsimulator.github.io` (public).
