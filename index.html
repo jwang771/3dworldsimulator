@@ -99,7 +99,7 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
 <main>
   <header>
     <h1>3D World Simulator</h1>
-    <p class="sub">A 3D world model for two-arm robot manipulation. It predicts the scene as a 3D latent grid and renders it from any camera, in real time, with tactile signals attached to the geometry.</p>
+    <p class="sub">An action-conditioned world model that predicts in 3D. One predicted scene state gives 3D particles, spatially aligned tactile signals and consistent renderings from any viewpoint, interactively and over long horizons.</p>
     <p class="authors">Authors here</p>
     <p class="venue">Affiliation · 2026</p>
     <div class="links"><span>Paper (soon)</span><span>Code (soon)</span><a href="#demo">Interactive demo</a><a href="#rollouts">Rollouts</a><a href="#cite">Citation</a></div>
@@ -114,9 +114,10 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
   </header>
 
   <section id="overview" class="col">
-    <h2><span class="n">1</span>What the model does</h2>
-    <p>We train the model on multi-view RGB-D recordings of a two-arm robot doing a handful of manipulation tasks: folding a towel, threading a rope through a pad eye, handling a box, inserting a plug, pushing a T block and placing a marker. Given the last few frames and the robot's action, it predicts the next state of the scene as a 3D latent grid. A decoder turns that grid into particles, and we render the particles as Gaussians, so a prediction can be viewed from any camera rather than only from the ones that recorded the data.</p>
-    <p>Everything on this page is rendered from the model's predictions, apart from the real-robot clip in the policy training section. The scanned room around the table is a separate asset that we composite behind the prediction, which is also what lets us swap it.</p>
+    <h2><span class="n">1</span>Overview</h2>
+    <p>3D World Simulator is an action-conditioned, multimodal world model that predicts in a unified 3D representation space. From that one space it produces 3D particles, tactile signals attached to the contacted surfaces, and multi-view consistent renderings from viewpoints that were never recorded. It supports interactive, long-horizon 3D video prediction, and it generalizes to diverse objects and environments when trained at scale.</p>
+    <p>The model has two parts. A <b>hybrid particle-voxel autoencoder</b> takes point clouds straight from RGB-D video and compresses them into a compact 3D voxel latent; its decoder upsamples that latent coarse to fine into higher-resolution voxels and then dense 3D particles, each a 3D Gaussian that can be rasterized from any camera, with tactile signals as particles in the same output space. A <b>3D latent dynamics model</b> then predicts the next voxel latent from the current one and the robot's action. Because the latent encodes the whole scene, the dynamics needs no object-specific state and no explicit correspondences.</p>
+    <p>Predicting in 3D is what makes the rest of this page possible. The same scene state renders consistently from static, orbiting and wrist-mounted cameras; tactile predictions stay geometrically aligned with the geometry they touch; and the prediction composes with existing 3D assets, so backgrounds, objects and kinematic robot models can be swapped in. Below we use this for interactive prediction on six tasks with rigid, articulated and deformable objects, for training visuo-tactile policies on model-generated data, for evaluating policies inside the model, and, trained on the large-scale Deform360 dataset, for zero-shot planning on unseen objects and robot arms.</p>
     <ul class="facts">
       <li><b>50+ frames per second</b><span>prediction and rendering, so it runs from a keyboard or a policy in the loop</span></li>
       <li><b>Any camera</b><span>static, orbiting or on the wrist; the wrist views are rendered from the predicted gripper pose</span></li>
