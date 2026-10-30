@@ -358,7 +358,8 @@ function editMode() {
   document.head.appendChild(css);
   const bar = document.createElement("div"); bar.id = "editbar";
   bar.innerHTML = `<b>Editing</b><span class="st" id="editStatus">Click any text and type. Captions of the rollout and evaluation sections are edited where they appear.</span>
-    <span style="flex:1"></span><input id="ghTok" type="password" placeholder="GitHub token (stays in this browser)"><button id="pub">Publish</button><button class="q" id="dl">Download content.json</button><button class="q" id="quit">Done</button>`;
+    <span style="flex:1"></span><span id="localBtns" hidden><button id="saveLocal">Save</button><button class="q" id="pubLocal">Publish (git push from here)</button></span>
+    <span id="ghBtns"><input id="ghTok" type="password" placeholder="GitHub token (stays in this browser)"><button id="pub">Publish</button></span><button class="q" id="dl">Download content.json</button><button class="q" id="quit">Done</button>`;
   document.body.appendChild(bar);
   try { $("ghTok").value = localStorage.getItem("ghTok") || ""; } catch (e) {}
   $("ghTok").addEventListener("change", () => { try { localStorage.setItem("ghTok", $("ghTok").value.trim()); } catch (e) {} });
@@ -376,10 +377,21 @@ function editMode() {
     if (t.matches("#modeTabs button")) C.modes[t.dataset.id].label = t.textContent.trim();
     if (t.matches("#peTabs button")) C.pe[t.dataset.name].name = t.textContent.trim();
     if (t.matches("#peViews button")) { const i = [...t.parentElement.children].indexOf(t); const vid = PE[peTask].views[i].id; C.pe[peTask].views[vid] = t.textContent.trim(); } });
+  document.addEventListener("keydown", (e) => { const t = e.target.closest ? e.target.closest("[contenteditable=true]") : null; if (!t) return;
+    if (e.key === " " && (t.tagName === "BUTTON" || t.closest("button"))) { e.preventDefault(); document.execCommand("insertText", false, " "); }
+    if (e.key === "Enter" && (t.tagName === "BUTTON" || t.closest("button") || t.tagName === "H1" || t.tagName === "SPAN")) e.preventDefault(); }, true);
   const collect = () => { const C = Object.assign({}, window.CONTENT || {}); document.querySelectorAll("[data-k]").forEach((el) => { C[el.dataset.k] = el.innerHTML.trim(); }); return C; };
   const status = (msg, cls) => { const s = $("editStatus"); s.textContent = msg; s.className = "st " + (cls || ""); };
   $("dl").addEventListener("click", () => { const blob = new Blob([JSON.stringify(collect(), null, 1)], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = FILE; a.click(); });
   $("quit").addEventListener("click", () => { location.hash = ""; location.reload(); });
+  fetch("_api/ping", { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((j) => { if (j && j.ok) { $("localBtns").hidden = false; $("ghBtns").hidden = true; status("Click any text and type. Save keeps it on the workstation; Publish pushes it to the live site."); } }).catch(() => {});
+  $("saveLocal").addEventListener("click", async () => { status("Saving…");
+    try { const r = await fetch("_api/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(collect()) }); const j = await r.json(); if (!j.ok) throw new Error(j.error || r.status);
+      window.CONTENT = collect(); status("Saved on the workstation (content.json). Not on the live site yet.", "ok"); } catch (e) { status(`Could not save: ${e.message}`, "bad"); } });
+  $("pubLocal").addEventListener("click", async () => { status("Saving and pushing…");
+    try { let r = await fetch("_api/save", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(collect()) }); let j = await r.json(); if (!j.ok) throw new Error(j.error || r.status);
+      r = await fetch("_api/publish", { method: "POST" }); j = await r.json(); if (!j.ok) throw new Error((j.log || "").split("\n").slice(-3).join(" "));
+      window.CONTENT = collect(); status("Pushed. The live page updates within a minute or two.", "ok"); } catch (e) { status(`Could not publish: ${e.message}`, "bad"); } });
   $("pub").addEventListener("click", async () => {
     const tok = $("ghTok").value.trim(); if (!tok) { status("Paste a GitHub token first (Settings > Developer settings > Fine-grained tokens, Contents: read and write on this repo).", "bad"); return; }
     const C = collect(); const body = JSON.stringify(C, null, 1); status("Publishing…");
