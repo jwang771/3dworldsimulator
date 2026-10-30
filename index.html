@@ -5,18 +5,24 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>3D World Simulator</title>
 <meta name="description" content="A 3D world model for bimanual robot manipulation: predicted 3D scenes rendered from any camera at 50 frames per second.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
-:root { --ink: #1a1a1a; --muted: #6b6b6b; --faint: #9a9a9a; --line: #e4e4e4; --wash: #f5f5f3; --ok: #1f7a3f; --bad: #b03a2e; }
+:root { --bg: #faf8f3; --ink: #35322d; --muted: #6d6760; --faint: #9f9a92; --line: #e6e1d8; --wash: #f1ede6; --accent: #3a6ea5; --ok: #1f7a3f; --bad: #b03a2e; }
 * { box-sizing: border-box; }
+button, input, select, textarea { font: inherit; }
 html { scroll-behavior: smooth; scroll-padding-top: 24px; }
-body { margin: 0; background: #fff; color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 17px; line-height: 1.55; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; font-size: 17px; line-height: 1.55; }
 a { color: inherit; }
 main { max-width: 1040px; margin: 0 auto; padding: 56px 24px 96px; }
 .col { max-width: 700px; }
 header h1 { font-size: 44px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.08; margin: 0 0 14px; }
 header .sub { font-size: 20px; color: var(--muted); max-width: 720px; margin: 0 0 22px; line-height: 1.4; }
-header .authors { margin: 0 0 4px; }
-header .venue { color: var(--muted); margin: 0 0 14px; }
+header .authors { margin: 0 0 6px; font-size: 18px; line-height: 1.6; }
+header .authors a { text-decoration: none; } header .authors a:hover { text-decoration: underline; text-underline-offset: 3px; }
+header sup { font-size: 11px; color: var(--muted); line-height: 0; margin-left: 1px; }
+p b, section p b { font-weight: 600; }
+.o { color: var(--accent); font-weight: 600; }
+header .venue { color: var(--muted); margin: 0 0 14px; font-size: 15px; }
 header .links { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 16px; margin: 0 0 36px; }
 header .links a { text-decoration: underline; text-underline-offset: 3px; }
 header .links span { color: var(--faint); }
@@ -43,6 +49,7 @@ section p { margin: 0 0 12px; }
 .picker button .th img { display: block; width: 100%; height: 100%; object-fit: cover; }
 .picker button span { display: block; margin-top: 6px; }
 .picker button:hover { color: var(--ink); }
+.picker button .th img { opacity: .55; transition: opacity .15s; } .picker button:hover .th img, .picker button[aria-selected="true"] .th img { opacity: 1; }
 .picker button[aria-selected="true"] { color: var(--ink); } .picker button[aria-selected="true"] .th { outline-color: var(--ink); }
 @media (max-width: 760px) { .picker { grid-template-columns: repeat(3, 1fr); } }
 .tabs { display: flex; flex-wrap: wrap; gap: 2px 18px; margin: 18px 0 10px; font-size: 16px; }
@@ -54,6 +61,13 @@ section p { margin: 0 0 12px; }
 .subtabs button:hover { color: var(--ink); }
 .subtabs button[aria-pressed="true"] { color: var(--ink); text-decoration-color: var(--ink); }
 .subtabs button:disabled { opacity: .35; cursor: default; }
+.modes { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+.modes button { display: flex; align-items: center; gap: 12px; font: inherit; font-size: 14px; color: var(--muted); background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 6px; cursor: pointer; text-align: left; }
+.modes button img { width: 76px; height: 50px; object-fit: cover; border-radius: 5px; display: block; flex: none; opacity: .75; transition: opacity .15s; }
+.modes button:hover { color: var(--ink); border-color: #9a9a9a; } .modes button:hover img { opacity: 1; }
+.modes button[aria-pressed="true"] { color: var(--ink); border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); } .modes button[aria-pressed="true"] img { opacity: 1; }
+.modes button:disabled { opacity: .35; cursor: default; }
+@media (max-width: 640px) { .modes { grid-template-columns: repeat(2, 1fr); } .modes button img { display: none; } }
 .stage { position: relative; aspect-ratio: 16 / 9; background: var(--wash); border-radius: 4px; overflow: hidden; transition: aspect-ratio .25s; }
 .stage.wide { aspect-ratio: var(--mv-ar, 4.5 / 1); }
 .stage video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -67,21 +81,43 @@ section p { margin: 0 0 12px; }
 .pair .cell .frame video { width: 100%; height: 100%; object-fit: contain; }
 .pair .tag { font-size: 14px; margin-top: 6px; }
 .pair .tag.ok { color: var(--ok); } .pair .tag.bad { color: var(--bad); }
+.pestages { display: grid; gap: 14px; }
+.pestages.side { grid-template-columns: 1fr 1fr; }
+.pestage .lab { font-size: 15px; font-weight: 600; margin: 0 0 6px; text-align: center; } .pestage .lab.ok { color: var(--ok); } .pestage .lab.bad { color: var(--bad); }
+.pestage .box { background: var(--wash); border: 2px solid var(--line); border-radius: 6px; padding: 0; overflow: hidden; }
+.pestage .pill { display: table; margin: 8px auto 8px; font-size: 14px; font-weight: 600; color: #fff; padding: 3px 14px; border-radius: 999px; } .pestage .box.ok .pill { background: var(--ok); } .pestage .box.bad .pill { background: var(--bad); }
+.pestage .row { display: flex; align-items: stretch; gap: 3px; }
+.pestage .box.ok { border-color: var(--ok); } .pestage .box.bad { border-color: var(--bad); }
+.pestage .v.nat { aspect-ratio: auto; } .pestage .v.nat video { height: auto; object-fit: fill; }
+.pestage .v { position: relative; flex: 1 1 0; min-width: 0; aspect-ratio: 3 / 2; overflow: hidden; } .pestage .v video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.pestage .v .cam { display: none; }
+.pestage .box.one { gap: 14px; } .pestage .box.one .v .cam { left: 50%; transform: translateX(-50%); }
+.pegrid { display: grid; grid-template-columns: 72px repeat(var(--n, 2), 1fr); gap: 8px 12px; align-items: start; }
+.pegrid .hd { font-size: 14px; color: var(--muted); padding-bottom: 2px; } .pegrid .rl { font-size: 14px; font-weight: 600; padding-top: 6px; } .pegrid .rl.ok { color: var(--ok); } .pegrid .rl.bad { color: var(--bad); }
+.pegrid .frame { aspect-ratio: var(--ar, 1); } .pegrid .frame video { width: 100%; height: 100%; object-fit: contain; }
+@media (max-width: 640px) { .pegrid { grid-template-columns: 56px repeat(var(--n, 2), 1fr); } }
 @media (max-width: 640px) { .pair { grid-template-columns: 1fr; } }
-.demo { position: relative; aspect-ratio: 16 / 9; background: var(--wash); border-radius: 4px; overflow: hidden; }
-.demo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; filter: saturate(.6); opacity: .8; }
-.demo .cover { position: absolute; inset: 0; display: grid; place-items: center; }
+.demo { position: relative; aspect-ratio: 2 / 1; background: #fff; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.demo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: top left; }
+.demo .cover { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(255, 255, 255, .3); }
 .demo .cover button { font: inherit; font-size: 16px; padding: 10px 18px; border: 1px solid var(--ink); background: #fff; cursor: pointer; border-radius: 3px; }
 .demo .cover button:hover { background: var(--ink); color: #fff; }
 .demo iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.demo .cover[hidden] { display: none; }
+/* the demo card is always the size the demo runs at: it breaks out of the column to 1552 px (the cover is a screenshot of the interface at that size) */
+.demo-wrap { width: min(100vw - 48px, 1552px); margin-left: calc((100% - min(100vw - 48px, 1552px)) / 2); }
+.rail { transition: opacity .35s; } body.near-demo .rail { opacity: 0; pointer-events: none; }
+.demobar { display: flex; gap: 22px; align-items: baseline; font-size: 14px; color: var(--muted); margin-top: 10px; }
+.demobar[hidden] { display: none; }
+.demobar button, .demobar a { font: inherit; font-size: 14px; color: var(--ink); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+.demobar .right { margin-left: auto; }
 .keys { font-size: 14px; color: var(--muted); margin-top: 10px; line-height: 1.7; }
 .keys b { color: var(--ink); font-weight: 600; }
 .keys kbd { font: inherit; font-size: 13px; padding: 0 5px; border: 1px solid #d5d5d5; border-bottom-width: 2px; border-radius: 3px; background: #fafafa; color: var(--ink); }
 .square { max-width: 640px; }
-.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px 28px; margin: 24px 0 0; padding: 0; list-style: none; font-size: 15px; max-width: 760px; }
-.facts li { padding: 10px 0; border-top: 1px solid var(--line); }
-.facts li b { display: block; font-weight: 600; margin-bottom: 2px; }
-.facts li span { color: var(--muted); }
+.facts { margin: 4px 0 0; padding-left: 24px; list-style: disc; font-size: 17px; max-width: 700px; }
+.facts li { padding: 2px 0; }
+b, strong { font-weight: 600; }
 pre { background: #f6f6f6; border-radius: 4px; padding: 14px 16px; font-size: 13px; line-height: 1.5; overflow-x: auto; }
 footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line); font-size: 14px; color: var(--muted); }
 /* on wide screens a quiet rail lists the sections and follows the scroll */
@@ -100,18 +136,14 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
 <main>
   <header>
     <h1 data-k="title">3D World Simulator</h1>
-    <p class="sub" data-k="subtitle">An action-conditioned world model that predicts in 3D. One predicted scene state gives 3D particles, spatially aligned tactile signals and consistent renderings from any viewpoint, interactively and over long horizons.</p>
-    <p class="authors" data-k="authors">Authors here</p>
-    <p class="venue" data-k="venue">Affiliation · 2026</p>
-    <div class="links"><span>Paper (soon)</span><span>Code (soon)</span><a href="#demo">Interactive demo</a><a href="#rollouts">Rollouts</a><a href="#cite">Citation</a></div>
+    <p class="sub" data-k="subtitle" hidden>An action-conditioned world model that predicts in 3D. One predicted scene state gives 3D particles, spatially aligned tactile signals and consistent renderings from any viewpoint, interactively and over long horizons.</p>
+    <p class="authors" data-k="authors"><a href="https://jwang771.github.io" target="_blank" rel="noopener">Jimmy Wang</a><sup>1</sup>, <a href="#" >Yifan Chou</a><sup>2</sup>, <a href="https://kywind.github.io" target="_blank" rel="noopener">Kaifeng Zhang</a><sup>3</sup>, <a href="https://wangyixuan12.github.io" target="_blank" rel="noopener">Yixuan Wang</a><sup>4</sup>, <a href="https://binghao-huang.github.io" target="_blank" rel="noopener">Binghao Huang</a><sup>3</sup>, <a href="#">Tao Yu</a><sup>5</sup>, <a href="#">Nabi Saleh</a><sup>5</sup>, <a href="https://yunzhuli.github.io" target="_blank" rel="noopener">Yunzhu Li</a><sup>3</sup></p>
+    <p class="venue" data-k="venue"><sup>1</sup>UC Berkeley &nbsp; <sup>2</sup>University of Michigan &nbsp; <sup>3</sup>Columbia University &nbsp; <sup>4</sup>NVIDIA &nbsp; <sup>5</sup>Analog Devices</p>
+    <div class="links"><span>Paper</span><span>Code</span></div>
     <figure>
       <div class="frame"><video data-auto src="media/teaser.mp4" poster="media/teaser.jpg" muted loop playsinline preload="metadata"></video></div>
-      <figcaption data-k="teaser_caption"><b>Teaser.</b> Interactive use of the cloth model from the keyboard, the model's internal geometry and tactile predictions, four more tasks, a change of room and robot, policies evaluated and trained inside the model, and the same recipe on a larger set of deformable objects.</figcaption>
+      <figcaption data-k="teaser_caption" hidden><b>Teaser.</b> Interactive use of the cloth model from the keyboard, the model's internal geometry and tactile predictions, four more tasks, a change of room and robot, policies evaluated and trained inside the model, and the same recipe on a larger set of deformable objects.</figcaption>
     </figure>
-    <div class="contents">
-      <h2>Contents</h2>
-      <ol id="toc"></ol>
-    </div>
   </header>
 
   <section id="overview" class="col">
@@ -131,11 +163,12 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
       <h2><span class="n">2</span><span data-k="demo_h">Interactive demo</span></h2>
       <p data-k="demo_p">The cloth model runs on a GPU on Modal and streams its render to the browser. Press start and a container is started for you, which takes about 45 seconds the first time. Then move the arms with the keys below, or drag the handles that appear on the grippers. It is a research demo rather than a product: if you push the arms somewhere the training data never went, the cloth will look strange.</p>
     </div>
-    <div class="media">
+    <div class="media demo-wrap" id="demoWrap">
       <div class="demo" id="demoBox">
-        <img src="media/teaser.jpg" alt="">
-        <div class="cover" id="demoCover"><button id="demoStart" data-k="demo_button">Start the demo (starts a GPU session)</button></div>
+        <img src="media/demo_cover.jpg" alt="">
+        <div class="cover" id="demoCover"><button id="demoStart" data-k="demo_button">Start interactive demo</button></div>
       </div>
+      <div class="demobar" id="demoBar" hidden><span>Drag to orbit, scroll to zoom, keys move the arms. The session runs on a GPU on Modal.</span><a id="demoTab" href="#" target="_blank" rel="noopener">Open in a new tab</a><button id="demoStop" class="right">Stop the demo</button></div>
       <div class="keys" data-k="demo_keys">
         <b>Arm 0</b> <kbd>U</kbd><kbd>O</kbd> up and down, <kbd>I</kbd><kbd>K</kbd> forward and back, <kbd>J</kbd><kbd>L</kbd> left and right. <b>Arm 1</b> <kbd>Q</kbd><kbd>E</kbd>, <kbd>W</kbd><kbd>S</kbd>, <kbd>A</kbd><kbd>D</kbd> the same way. <kbd>H</kbd> opens or closes the gripper. <kbd>R</kbd> restarts from the chosen frame. Drag to orbit the camera, shift-drag to pan, scroll to zoom. <a href="https://jwang771--3dws-demo.us-east.modal.run" target="_blank" rel="noopener">Open the demo in its own tab</a> if the embedded version is too small.
       </div>
@@ -149,7 +182,6 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
     </div>
     <div class="media">
       <div class="picker" id="taskTabs" role="tablist"></div>
-      <div class="subtabs" id="modeTabs"></div>
       <div class="stage" id="stage"><div class="note" id="stageNote"></div></div>
       <div class="bar">
         <button id="play" aria-label="Pause">
@@ -158,7 +190,7 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
         <input type="range" id="scrub" min="0" max="1" step="0.001" value="0" aria-label="Time">
         <span class="t" id="time">0.0 s</span>
       </div>
-      <figcaption id="rollCap"></figcaption>
+      <div class="modes" id="modeTabs"></div>
     </div>
   </section>
 
@@ -169,7 +201,7 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
     </div>
     <figure class="media">
       <div class="frame"><video data-auto src="media/backgrounds.mp4" poster="media/backgrounds.jpg" muted loop playsinline preload="metadata"></video></div>
-      <figcaption data-k="backgrounds_caption"><b>Rooms and arms.</b> Lab, gallery, warehouse, wood-panelled room and dining room, then the 2 × 2 comparison.</figcaption>
+      <figcaption data-k="backgrounds_caption" hidden><b>Rooms and arms.</b> Lab, gallery, warehouse, wood-panelled room and dining room, then the 2 × 2 comparison.</figcaption>
     </figure>
   </section>
 
@@ -179,10 +211,10 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
       <p data-k="evaluation_p">A policy can be run inside the model instead of on the robot: we render the camera views the policy expects, it returns an action, and the model predicts what happens next. The model's prediction is detailed enough to tell a success from a failure. For each task we picked one rollout that ends in success and one that does not. For Push-T the goal pose is drawn as an outline; for the cloth we look at whether the towel ends up folded. Plug insertion compares two different policies from the same start.</p>
     </div>
     <div class="media">
-      <div class="tabs" id="peTabs" role="tablist"></div>
+      <div class="picker" id="peTabs" role="tablist"></div>
       <div class="subtabs" id="peViews"></div>
       <div class="pair" id="pePair"></div>
-      <figcaption id="peCap"></figcaption>
+      <figcaption id="peCap" hidden></figcaption>
     </div>
   </section>
 
@@ -207,18 +239,8 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
     </figure>
   </section>
 
-  <section id="planning">
-    <div class="col">
-      <h2><span class="n">8</span><span data-k="planning_h">Downstream planning</span></h2>
-      <p data-k="planning_p">Since the model can imagine the result of an action sequence, we can plan with it: sample candidate sequences, roll each one out in the model, and execute the best. The objects here were not in the training data.</p>
-    </div>
-    <figure class="media">
-      <div class="frame"><video data-auto src="media/planning.mp4" poster="media/planning.jpg" muted loop playsinline preload="metadata"></video></div>
-    </figure>
-  </section>
-
   <section id="cite" class="col">
-    <h2><span class="n">9</span><span data-k="cite_h">Citation</span></h2>
+    <h2><span class="n">8</span><span data-k="cite_h">Citation</span></h2>
 <pre data-k="cite">@article{3dworldsimulator2026,
   title   = {3D World Simulator},
   author  = {...},
@@ -234,20 +256,40 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
 const $ = (id) => document.getElementById(id);
 // contents list and the side rail are built from the sections
 const secs = [...document.querySelectorAll("main > section")];
-function buildNav() { $("toc").innerHTML = ""; $("rail").innerHTML = "";
+function buildNav() { if ($("toc")) $("toc").innerHTML = ""; $("rail").innerHTML = "";
   secs.forEach((s) => { const h = s.querySelector("h2"); const title = h.textContent.replace(/^\d+\s*/, ""); const n = h.querySelector(".n").textContent;
-    const li = document.createElement("li"); li.innerHTML = `<a href="#${s.id}"><span class="n">${n}</span>${title}</a>`; $("toc").appendChild(li);
+    if ($("toc")) { const li = document.createElement("li"); li.innerHTML = `<a href="#${s.id}"><span class="n">${n}</span>${title}</a>`; $("toc").appendChild(li); }
     const a = document.createElement("a"); a.href = `#${s.id}`; a.textContent = title; a.dataset.id = s.id; $("rail").appendChild(a); }); }
 buildNav();
 new IntersectionObserver((es) => { es.forEach((e) => { if (e.isIntersecting) document.querySelectorAll("#rail a").forEach((a) => a.classList.toggle("on", a.dataset.id === e.target.id)); }); }, { rootMargin: "-30% 0px -60% 0px" }).observe && secs.forEach((s) => new IntersectionObserver((es) => { es.forEach((e) => { if (e.isIntersecting) document.querySelectorAll("#rail a").forEach((a) => a.classList.toggle("on", a.dataset.id === e.target.id)); }); }, { rootMargin: "-30% 0px -60% 0px" }).observe(s));
 // videos play only while on screen
 const io = new IntersectionObserver((es) => es.forEach((e) => { const v = e.target; if (e.isIntersecting && e.intersectionRatio >= 0.35) { if (v.dataset.user !== "paused") v.play().catch(() => {}); } else v.pause(); }), { threshold: [0, 0.35, 1] });
-document.querySelectorAll("video[data-auto]").forEach((v) => { v.addEventListener("click", () => { if (v.paused) { v.dataset.user = ""; v.play().catch(() => {}); } else { v.dataset.user = "paused"; v.pause(); } }); io.observe(v); });
+document.querySelectorAll("video[data-auto]").forEach((v) => { v.addEventListener("click", () => { if (v.paused) { v.dataset.user = ""; v.play().catch(() => {}); } else { v.dataset.user = "paused"; v.pause(); } }); io.observe(v); addBar(v); });
+function addBar(v) {   // play / pause, scrubber and time, like the rollout player
+  const bar = document.createElement("div"); bar.className = "bar";
+  bar.innerHTML = `<button aria-label="Pause"><svg width="10" height="10" viewBox="0 0 12 12"></svg></button><input type="range" min="0" max="1" step="0.001" value="0" aria-label="Time"><span class="t">0.0 s</span>`;
+  const [btn, rng, t] = [bar.querySelector("button"), bar.querySelector("input"), bar.querySelector(".t")]; const ic = bar.querySelector("svg");
+  const PAUSE = '<rect x="1.5" y="1" width="3" height="10" fill="currentColor"/><rect x="7.5" y="1" width="3" height="10" fill="currentColor"/>', PLAY = '<path d="M2.5 1 L11 6 L2.5 11 Z" fill="currentColor"/>';
+  const paint = () => { ic.innerHTML = v.paused ? PLAY : PAUSE; };
+  btn.addEventListener("click", () => { if (v.paused) { v.dataset.user = ""; v.play().catch(() => {}); } else { v.dataset.user = "paused"; v.pause(); } });
+  rng.addEventListener("input", (e) => { if (v.duration) v.currentTime = e.target.value * v.duration; });
+  v.addEventListener("timeupdate", () => { if (v.duration) { rng.value = v.currentTime / v.duration; t.textContent = v.currentTime.toFixed(1) + " s"; } });
+  v.addEventListener("play", paint); v.addEventListener("pause", paint); paint();
+  const host = v.closest(".frame") || v; host.insertAdjacentElement("afterend", bar);
+}
 // demo: the GPU session starts only when asked
+// Served from this machine or the LAN (local preview), the card embeds the local copy of the Modal server (:8096); otherwise the Modal deployment.
+const LOCAL = /^(localhost|127\.0\.0\.1|10\.|192\.168\.|172\.(1[6-9]|2\d|3[01])\.)/.test(location.hostname);
+const DEMO_URL = LOCAL ? `http://${location.hostname}:8096/` : "https://jwang771--3dws-demo.us-east.modal.run/";
+$("demoTab").href = DEMO_URL;
+document.querySelector("#demo .keys").addEventListener("click", (e) => { const a = e.target.closest("a"); if (a) { e.preventDefault(); window.open(DEMO_URL, "_blank", "noopener"); } });
 $("demoStart").addEventListener("click", () => {
-  const f = document.createElement("iframe"); f.src = "https://jwang771--3dws-demo.us-east.modal.run"; f.allow = "fullscreen"; f.title = "Interactive demo";
-  $("demoBox").appendChild(f); $("demoCover").remove(); f.focus();
+  const f = document.createElement("iframe"); f.src = DEMO_URL; f.title = "Interactive demo"; f.id = "demoFrame";
+  $("demoBox").appendChild(f); $("demoCover").hidden = true; $("demoBar").hidden = false; setTimeout(() => f.focus(), 700);
 });
+$("demoStop").addEventListener("click", () => { $("demoFrame").remove(); $("demoCover").hidden = false; $("demoBar").hidden = true; });
+// the side contents list gets out of the way while the demo card is on screen
+new IntersectionObserver((es) => document.body.classList.toggle("near-demo", es[0].isIntersecting), { rootMargin: "-10% 0px -10% 0px" }).observe($("demoWrap"));
 // rollouts
 const TASKS = [
   { id: "cloth", name: "Cloth", cap: "Towel folding, episode 1010." },
@@ -258,18 +300,19 @@ const TASKS = [
   { id: "rope_wrist", name: "Rope", cap: "Rope through a pad eye, episode 24." },
 ];
 const MODES = [
-  { id: "splats", label: "Render", cap: "Full render: decoded Gaussians, arm splats, scanned room." },
-  { id: "points", label: "Particles", cap: "Everything as points; the tactile pads light up on contact." },
-  { id: "latents", label: "Latent grid", cap: "Occupied cells of the 64 × 32 × 64 latent grid, coloured by their first principal component." },
-  { id: "voxels", label: "Voxels", cap: "The 128 × 64 × 128 occupancy the decoder produces before the particles." },
-  { id: "raw", label: "Model output only", cap: "What the model decodes on its own, including its own version of the arms. No arm splats, no room." },
-  { id: "multiview", label: "Three views", cap: "Side by side: the overhead camera, the camera on the far side of the table, and the moving view. All three are the same prediction." },
+  { id: "splats", label: "Novel View", cap: "Full render: decoded Gaussians, arm splats, scanned room." },
+  { id: "multiview", label: "Multi-View", cap: "Side by side: the overhead camera, the camera on the far side of the table, and the moving view. All three are the same prediction." },
+  { id: "points", label: "3D Particles", cap: "Everything as points; the tactile pads light up on contact." },
+  { id: "latents", label: "Latent Representation", cap: "Occupied cells of the 64 × 32 × 64 latent grid, coloured by their first principal component." },
+  { id: "voxels", label: "Intermediate Upsampled Voxels", cap: "The 128 × 64 × 128 occupancy the decoder produces before the particles." },
+  { id: "raw", label: "Raw Model Output", cap: "What the model decodes on its own, including its own version of the arms. No arm splats, no room." },
 ];
 let task = "cloth", mode = "splats", vids = {}, cur = null, playing = true;
 TASKS.forEach((t) => { const b = document.createElement("button"); b.role = "tab"; b.innerHTML = `<div class="th"><img src="pan/${t.id}/poster.jpg" alt="" loading="lazy"></div><span>${t.name}</span>`; b.dataset.id = t.id; b.addEventListener("click", () => selectTask(t.id)); $("taskTabs").appendChild(b); });
-MODES.forEach((m) => { const b = document.createElement("button"); b.textContent = m.label; b.dataset.id = m.id; b.addEventListener("click", () => selectMode(m.id)); $("modeTabs").appendChild(b); });
+MODES.forEach((m) => { const b = document.createElement("button"); b.innerHTML = `<img src="pan/cloth/th_${m.id}.jpg" alt="" loading="lazy"><span>${m.label}</span>`; b.dataset.id = m.id; b.addEventListener("click", () => selectMode(m.id)); $("modeTabs").appendChild(b); });
 function selectTask(id) {
   task = id; document.querySelectorAll("#taskTabs button").forEach((b) => b.setAttribute("aria-selected", b.dataset.id === id ? "true" : "false"));
+  document.querySelectorAll("#modeTabs button img").forEach((i) => { i.src = `pan/${id}/th_${i.parentElement.dataset.id}.jpg`; });
   Object.values(vids).forEach((v) => { v.pause(); v.remove(); }); vids = {}; cur = null;
   const have = (window.PAN || {})[id]; $("stageNote").textContent = have ? "" : "Not rendered yet";
   if (!have) { caption(); return; }
@@ -292,9 +335,6 @@ function selectMode(id) { const have = (window.PAN || {})[task]; if (!have || !h
 function caption() {
   const have = (window.PAN || {})[task] || [];
   document.querySelectorAll("#modeTabs button").forEach((b) => { b.setAttribute("aria-pressed", b.dataset.id === mode ? "true" : "false"); b.disabled = !have.includes(b.dataset.id); });
-  const t = TASKS.find((x) => x.id === task), m = MODES.find((x) => x.id === mode);
-  const C = window.CONTENT || {}; const tc = ((C.tasks || {})[task] || {}).cap || t.cap, mc = ((C.modes || {})[mode] || {}).cap || m.cap;
-  $("rollCap").textContent = have.length ? `${tc} ${mc}` : `${tc} Not rendered yet.`;
 }
 let onScreen = false;
 new IntersectionObserver((es) => { onScreen = es[0].isIntersecting; if (cur) (onScreen && playing ? cur.play().catch(() => {}) : cur.pause()); }, { threshold: 0.25 }).observe($("stage"));
@@ -303,28 +343,33 @@ $("scrub").addEventListener("input", (e) => { if (cur && cur.duration) cur.curre
 (function tick() { if (cur && cur.duration) { $("scrub").value = cur.currentTime / cur.duration; $("time").textContent = `${cur.currentTime.toFixed(1)} / ${cur.duration.toFixed(1)} s`; } requestAnimationFrame(tick); })();
 // policy evaluation: left success, right failure
 const PE = {
-  pusht: { name: "Push-T", views: [{ id: "cam0", label: "Policy camera", ok: "media/pe_pusht_ok_outline.mp4", bad: "media/pe_pusht_fail_outline.mp4", ar: "650 / 720" }],
-    cap: "Diffusion Policy, seen through the camera crop the policy uses. Left: the T ends on the goal outline. Right: a policy trained on simulated data stops short." },
-  plug: { name: "Plug", views: [{ id: "cam1", label: "Static camera", ok: "media/pe_plug_b_cam1.mp4", bad: "media/pe_plug_a_cam1.mp4", ar: "750 / 600" }, { id: "wrist", label: "Wrist camera", ok: "media/pe_plug_b_wrist3.mp4", bad: "media/pe_plug_a_wrist3.mp4", ar: "16 / 9" }],
+  plug: { name: "Part Assembly", views: [{ id: "cam1", label: "Static camera", ok: "media/pe_plug_b_cam1.mp4", bad: "media/pe_plug_a_cam1.mp4", ar: "750 / 600" }, { id: "wrist", label: "Wrist camera", ok: "media/pe_plug_b_wrist3.mp4", bad: "media/pe_plug_a_wrist3.mp4", ar: "16 / 9" }],
     cap: "Two policies' logged actions from the same start, replayed in the model. The wrist view is rendered from the predicted wrist pose." },
-  cloth: { name: "Cloth", views: [{ id: "cam1", label: "Static camera", ok: "media/pe_cloth_ok_cam1.mp4", bad: "media/pe_cloth_fail_cam1.mp4", ar: "740 / 560" }, { id: "wrist3", label: "Wrist camera, arm 0", ok: "media/pe_cloth_ok_wrist3.mp4", bad: "media/pe_cloth_fail_wrist3.mp4", ar: "1280 / 648" }, { id: "wrist4", label: "Wrist camera, arm 1", ok: "media/pe_cloth_ok_wrist4.mp4", bad: "media/pe_cloth_fail_wrist4.mp4", ar: "1280 / 648" }],
+  pusht: { name: "T Pushing", views: [{ id: "cam0", label: "Policy camera", ok: "media/pe_pusht_ok_outline.mp4", bad: "media/pe_pusht_fail_outline.mp4", ar: "650 / 720" }],
+    cap: "Diffusion Policy, seen through the camera crop the policy uses. Left: the T ends on the goal outline. Right: a policy trained on simulated data stops short." },
+  cloth: { name: "Cloth Folding", views: [{ id: "cam1", label: "Static camera", ok: "media/pe_cloth_ok_cam1.mp4", bad: "media/pe_cloth_fail_cam1.mp4", ar: "740 / 560" }, { id: "wrist3", label: "Wrist camera, arm 0", ok: "media/pe_cloth_ok_wrist3.mp4", bad: "media/pe_cloth_fail_wrist3.mp4", ar: "1280 / 648" }, { id: "wrist4", label: "Wrist camera, arm 1", ok: "media/pe_cloth_ok_wrist4.mp4", bad: "media/pe_cloth_fail_wrist4.mp4", ar: "1280 / 648" }],
     cap: "Two evaluation episodes of an ACT policy. Left: the towel ends folded. Right: it ends crumpled." },
 };
-let peTask = "pusht", peView = 0, peVids = [];
-Object.entries(PE).forEach(([k, v]) => { const b = document.createElement("button"); b.role = "tab"; b.textContent = v.name; b.dataset.name = k; b.dataset.id = k; b.addEventListener("click", () => { peTask = k; peView = 0; renderPE(); }); $("peTabs").appendChild(b); });
+let peTask = "plug", peView = 0, peVids = [];
+Object.entries(PE).forEach(([k, v]) => { const b = document.createElement("button"); b.role = "tab"; b.innerHTML = `<div class="th"><img src="media/pe_th_${k}.jpg" alt="" loading="lazy"></div><span>${v.name}</span>`; b.dataset.name = k; b.dataset.id = k; b.addEventListener("click", () => { peTask = k; peView = 0; renderPE(); }); $("peTabs").appendChild(b); });
 function renderPE() {
   document.querySelectorAll("#peTabs button").forEach((b) => b.setAttribute("aria-selected", b.dataset.id === peTask ? "true" : "false"));
-  const T = PE[peTask]; const vt = $("peViews"); vt.innerHTML = ""; vt.hidden = T.views.length < 2;
-  T.views.forEach((v, i) => { const b = document.createElement("button"); b.textContent = ((((window.CONTENT || {}).pe || {})[peTask] || {}).views || {})[v.id] || v.label; b.setAttribute("aria-pressed", i === peView ? "true" : "false"); b.addEventListener("click", () => { peView = i; renderPE(); }); vt.appendChild(b); });
-  const v = T.views[peView]; peVids.forEach((x) => x.pause());
-  const PL = ((window.CONTENT || {}).pe_labels) || { ok: "Success", bad: "Failure" };
-  $("pePair").innerHTML = ["ok", "bad"].map((k) => `<div class="cell"><div class="frame" style="--ar:${v.ar}"><video src="${v[k]}" muted loop playsinline preload="auto"></video></div><div class="tag ${k}">${PL[k]}</div></div>`).join("");
-  const C = window.CONTENT || {}; $("peCap").textContent = (((C.pe || {})[peTask] || {}).cap) || T.cap; peVids = [...$("pePair").querySelectorAll("video")]; let n = 0;
-  peVids.forEach((x) => x.addEventListener("canplaythrough", () => { if (++n === peVids.length) peVids.forEach((y) => { y.currentTime = 0; if (peOn) y.play().catch(() => {}); }); }, { once: true }));
+  const T = PE[peTask]; $("peViews").hidden = true; peVids.forEach((x) => x.pause());
+  const C = window.CONTENT || {}; const PL = C.pe_labels || { ok: "Success", bad: "Failure" }; const VL = (((C.pe || {})[peTask] || {}).views) || {};
+  const ar = (v) => { const [w, h] = v.ar.split("/").map(Number); return w / h; };   // widths proportional to aspect ratio, so the views in a frame share one height
+  const vid = (v, k, cam) => `<div class="v"><video src="${v[k]}?v=4" muted loop playsinline preload="auto"></video></div>`;   // equal 3:2 boxes, each camera cropped to fit (?v= busts the browser cache after a re-cut)
+  $("pePair").className = "pestages"; $("pePair").style.cssText = "";
+  // one framed stage per outcome (green / red border, label centred above). One camera: the two stages side by side, video uncropped;
+  // several cameras: stages stacked, cameras side by side in equal 3:2 boxes
+  const one = T.views.length === 1; if (one) $("pePair").classList.add("side");
+  $("pePair").innerHTML = ["ok", "bad"].map((k) => `<div class="pestage"><div class="box ${k}"><div class="pill">${PL[k]}</div><div class="row">${T.views.map((v) => vid(v, k, VL[v.id] || v.label)).join("")}</div></div></div>`).join("");
+  if (one) $("pePair").querySelectorAll(".v").forEach((d) => d.classList.add("nat"));
+  $("peCap").textContent = (((C.pe || {})[peTask] || {}).cap) || T.cap; peVids = [...$("pePair").querySelectorAll("video")]; let n = 0;
+  peVids.forEach((x) => { x.addEventListener("canplaythrough", () => { if (++n === peVids.length) peVids.forEach((y) => { y.currentTime = 0; if (peOn) y.play().catch(() => {}); }); }, { once: true }); });
 }
 let peOn = false;
 new IntersectionObserver((es) => { peOn = es[0].isIntersecting; peVids.forEach((y) => (peOn ? y.play().catch(() => {}) : y.pause())); }, { threshold: 0.25 }).observe($("pePair"));
-setInterval(() => { if (peVids.length === 2 && Math.abs(peVids[0].currentTime - peVids[1].currentTime) > 0.15) peVids[1].currentTime = peVids[0].currentTime; }, 500);
+setInterval(() => { if (peVids.length > 1) peVids.slice(1).forEach((y) => { if (Math.abs(peVids[0].currentTime - y.currentTime) > 0.15) y.currentTime = peVids[0].currentTime; }); }, 500);
 renderPE();
 </script>
 <script src="pan/manifest.js"></script>
@@ -337,27 +382,29 @@ function applyContent(C) {
   window.CONTENT = C;
   document.querySelectorAll("[data-k]").forEach((el) => { const k = el.dataset.k; if (typeof C[k] === "string") el.innerHTML = C[k]; });
   document.querySelectorAll("#taskTabs button").forEach((b) => { const t = (C.tasks || {})[b.dataset.id]; if (t && t.name) b.querySelector("span").textContent = t.name; });
-  document.querySelectorAll("#modeTabs button").forEach((b) => { const m = (C.modes || {})[b.dataset.id]; if (m && m.label) b.textContent = m.label; });
-  document.querySelectorAll("#peTabs button").forEach((b) => { const t = (C.pe || {})[b.dataset.name]; if (t && t.name) b.textContent = t.name; });
-  buildNav(); caption(); renderPE();
+  document.querySelectorAll("#modeTabs button").forEach((b) => { const m = (C.modes || {})[b.dataset.id]; if (m && m.label) b.querySelector("span").textContent = m.label; });
+  document.querySelectorAll("#peTabs button").forEach((b) => { const t = (C.pe || {})[b.dataset.name]; if (t && t.name) b.querySelector("span").textContent = t.name; });
+  buildNav(); caption(); renderPE(); hideEmptyFacts();
 }
+function hideEmptyFacts() { document.querySelectorAll(".facts li").forEach((li) => { li.hidden = !document.body.classList.contains("editing") && !li.textContent.trim(); }); }
 fetch(`${FILE}?t=${Date.now()}`, { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((C) => { if (C) applyContent(C); if (location.hash === "#edit") editMode(); }).catch(() => { if (location.hash === "#edit") editMode(); });
 window.addEventListener("hashchange", () => { if (location.hash === "#edit" && !document.body.classList.contains("editing")) editMode(); });
 function editMode() {
-  document.body.classList.add("editing");
+  document.body.classList.add("editing"); hideEmptyFacts();
   const css = document.createElement("style"); css.textContent = `
     .editing [data-k] { outline: 1px dashed #c7a600; outline-offset: 3px; border-radius: 2px; min-height: 1em; }
     .editing [data-k]:focus { outline: 2px solid #1a1a1a; background: #fffbe6; }
-    .editing .picker button span[contenteditable], .editing #modeTabs button[contenteditable], .editing #peTabs button[contenteditable], .editing #rollCap[contenteditable], .editing #peCap[contenteditable] { outline: 1px dashed #c7a600; outline-offset: 3px; }
+    .editing .picker button span[contenteditable], .editing #modeTabs button span[contenteditable], .editing #peTabs button span[contenteditable], .editing #rollCap[contenteditable], .editing #peCap[contenteditable] { outline: 1px dashed #c7a600; outline-offset: 3px; }
     #editbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; background: #1a1a1a; color: #fff; font-size: 14px; padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; box-shadow: 0 -2px 12px rgba(0,0,0,.25); }
     #editbar input { font: inherit; padding: 5px 8px; border-radius: 3px; border: 1px solid #555; background: #2a2a2a; color: #fff; min-width: 260px; }
     #editbar button { font: inherit; padding: 6px 14px; border-radius: 3px; border: 1px solid #fff; background: #fff; color: #1a1a1a; cursor: pointer; }
     #editbar button.q { background: none; color: #fff; }
     #editbar .st { color: #bbb; } #editbar .st.ok { color: #8fd694; } #editbar .st.bad { color: #ff9c8f; }
+    #editbar #fmt { display: inline-flex; gap: 6px; align-items: center; padding: 0 10px; border-left: 1px solid #444; border-right: 1px solid #444; } #editbar #fmt button { padding: 4px 10px; } #editbar #fmt .st { margin-left: 6px; }
     body.editing { padding-bottom: 70px; }`;
   document.head.appendChild(css);
   const bar = document.createElement("div"); bar.id = "editbar";
-  bar.innerHTML = `<b>Editing</b><span class="st" id="editStatus">Click any text and type. Captions of the rollout and evaluation sections are edited where they appear.</span>
+  bar.innerHTML = `<b>Editing</b><span id="fmt"><button class="q" id="fBold" title="Ctrl+B"><b>B</b> Bold</button><button class="q" id="fOr" style="color:#8fb6e6">Blue</button><button class="q" id="fPlain">Plain</button><span class="st">select text, then click · Enter = new line</span></span><span class="st" id="editStatus">Click any text and type.</span>
     <span style="flex:1"></span><span id="localBtns" hidden><button id="saveLocal">Save</button><button class="q" id="pubLocal">Publish (git push from here)</button></span>
     <span id="ghBtns"><input id="ghTok" type="password" placeholder="GitHub token (stays in this browser)"><button id="pub">Publish</button></span><button class="q" id="dl">Download content.json</button><button class="q" id="quit">Done</button>`;
   document.body.appendChild(bar);
@@ -366,20 +413,34 @@ function editMode() {
   document.querySelectorAll("[data-k]").forEach((el) => { el.contentEditable = "true"; el.spellcheck = true; if (el.tagName === "BUTTON" || el.tagName === "A") el.addEventListener("click", (e) => e.preventDefault()); });
   document.querySelectorAll("[data-k] a").forEach((a) => a.addEventListener("click", (e) => e.preventDefault()));
   // captions of the current task / mode / evaluation tab are edited in place; the name labels of the tabs too
-  const live = () => { ["rollCap", "peCap"].forEach((id) => { $(id).contentEditable = "true"; });
-    document.querySelectorAll("#taskTabs button span, #modeTabs button, #peTabs button, #peViews button").forEach((b) => { b.contentEditable = "true"; }); };
+  const live = () => { ["peCap"].forEach((id) => { $(id).contentEditable = "true"; });
+    document.querySelectorAll("#taskTabs button span, #modeTabs button span, #peTabs button span, #peViews button").forEach((b) => { b.contentEditable = "true"; }); };
   live(); new MutationObserver(live).observe($("peViews"), { childList: true });
-  $("rollCap").addEventListener("input", () => { const C = window.CONTENT; const full = $("rollCap").textContent; const m = ((C.modes || {})[mode] || {}); const mc = m.cap || ""; 
-    if (mc && full.endsWith(mc)) { C.tasks[task].cap = full.slice(0, full.length - mc.length).trim(); } else if (full.startsWith((C.tasks[task] || {}).cap || "\u0000")) { C.modes[mode].cap = full.slice(C.tasks[task].cap.length).trim(); } else { C.tasks[task].cap = full.trim(); C.modes[mode].cap = ""; } });
   $("peCap").addEventListener("input", () => { window.CONTENT.pe[peTask].cap = $("peCap").textContent.trim(); });
   document.addEventListener("input", (e) => { const t = e.target; const C = window.CONTENT; if (!C) return;
     if (t.matches("#taskTabs button span")) C.tasks[t.parentElement.dataset.id].name = t.textContent.trim();
-    if (t.matches("#modeTabs button")) C.modes[t.dataset.id].label = t.textContent.trim();
-    if (t.matches("#peTabs button")) C.pe[t.dataset.name].name = t.textContent.trim();
+    if (t.matches("#modeTabs button span")) C.modes[t.parentElement.dataset.id].label = t.textContent.trim();
+    if (t.matches("#peTabs button span")) C.pe[t.parentElement.dataset.name].name = t.textContent.trim();
     if (t.matches("#peViews button")) { const i = [...t.parentElement.children].indexOf(t); const vid = PE[peTask].views[i].id; C.pe[peTask].views[vid] = t.textContent.trim(); } });
   document.addEventListener("keydown", (e) => { const t = e.target.closest ? e.target.closest("[contenteditable=true]") : null; if (!t) return;
     if (e.key === " " && (t.tagName === "BUTTON" || t.closest("button"))) { e.preventDefault(); document.execCommand("insertText", false, " "); }
-    if (e.key === "Enter" && (t.tagName === "BUTTON" || t.closest("button") || t.tagName === "H1" || t.tagName === "SPAN")) e.preventDefault(); }, true);
+    if (e.key === "Enter" && (t.tagName === "BUTTON" || t.closest("button") || t.tagName === "H1" || t.tagName === "SPAN")) e.preventDefault();
+    else if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); document.execCommand("insertLineBreak"); } }, true);
+  // formatting: bold (<b>), orange (<span class="o">), plain (unwrap both); the buttons keep the text selection
+  try { document.execCommand("styleWithCSS", false, false); } catch (e) {}
+  const unwrap = (el) => { const p = el.parentNode; while (el.firstChild) p.insertBefore(el.firstChild, el); p.removeChild(el); p.normalize(); };
+  const inEdit = (n) => n && (n.nodeType === 1 ? n : n.parentElement).closest("[data-k][contenteditable=true]");
+  ["fBold", "fOr", "fPlain"].forEach((id) => $(id).addEventListener("mousedown", (e) => e.preventDefault()));
+  // wrap the selection in <b> or <span class="o">; clicking again inside such a wrapper removes it
+  const toggleWrap = (mk, match) => { const sel = getSelection(); if (!sel.rangeCount || sel.isCollapsed || !inEdit(sel.anchorNode)) return; const r = sel.getRangeAt(0);
+    const c = r.commonAncestorContainer, on = (c.nodeType === 1 ? c : c.parentElement).closest(match);
+    if (on && inEdit(on)) { unwrap(on); return; }
+    const el = mk(); el.appendChild(r.extractContents()); el.querySelectorAll(match).forEach(unwrap); r.insertNode(el); sel.removeAllRanges(); const nr = document.createRange(); nr.selectNodeContents(el); sel.addRange(nr); };
+  $("fBold").addEventListener("click", () => toggleWrap(() => document.createElement("b"), "b, strong"));
+  $("fOr").addEventListener("click", () => toggleWrap(() => { const e = document.createElement("span"); e.className = "o"; return e; }, ".o"));
+  document.addEventListener("keydown", (e) => { if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "b" && inEdit(getSelection().anchorNode)) { e.preventDefault(); $("fBold").click(); } }, true);
+  $("fPlain").addEventListener("click", () => { const sel = getSelection(); if (!sel.rangeCount || !inEdit(sel.anchorNode)) return; document.execCommand("removeFormat");
+    for (let i = 0; i < 6; i++) { const n = sel.anchorNode; const el = (n.nodeType === 1 ? n : n.parentElement).closest("b, strong, .o"); if (!el || !inEdit(el)) break; unwrap(el); } });
   const collect = () => { const C = Object.assign({}, window.CONTENT || {}); document.querySelectorAll("[data-k]").forEach((el) => { C[el.dataset.k] = el.innerHTML.trim(); }); return C; };
   const status = (msg, cls) => { const s = $("editStatus"); s.textContent = msg; s.className = "st " + (cls || ""); };
   $("dl").addEventListener("click", () => { const blob = new Blob([JSON.stringify(collect(), null, 1)], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = FILE; a.click(); });
