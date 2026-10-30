@@ -6,7 +6,7 @@
  "venue": "<sup>1</sup>UC Berkeley &nbsp; <sup>2</sup>University of Michigan &nbsp; <sup>3</sup>Columbia University &nbsp; <sup>4</sup>NVIDIA &nbsp; <sup>5</sup>Analog Devices",
  "teaser_caption": "<b>Teaser.</b> Interactive use of the cloth model from the keyboard, the model's internal geometry and tactile predictions, four more tasks, a change of room and robot, policies evaluated and trained inside the model, and the same recipe on a larger set of deformable objects.",
  "overview_h": "Overview",
- "overview_p1": "We introduce <b>3D World Simulator</b>, an action-conditioned, multimodal world model that supports long-horizon interactions at <span class=\"o\">50+ FPS on an RTX 5090</span>. <br><br>Our approach involves a <span class=\"o\"></span>hybrid particle-voxel autoencoder and a 3D latent dynamics<span class=\"o\"></span> that operates in a&nbsp;<b>unified 3D representation space</b>, providing a common interface to generate:",
+ "overview_p1": "We introduce <b>3D World Simulator</b>, an action-conditioned, multimodal world model that supports long-horizon interactions at <span class=\"o\">50+ FPS on an RTX 5090</span>. <br><br>Our approach involves a <span class=\"o\"></span>hybrid particle-voxel autoencoder and a 3D latent dynamics model<span class=\"o\"></span> that operates in a&nbsp;<b>unified 3D representation space</b>, providing a common interface to generate:",
  "fact1": "<b>Multi-view consistent </b>RGB-D views from novel viewpoints",
  "fact2": "<b>Spatially-aligned tactile signals </b>represented as 3D particles",
  "fact3": "<b>3D Geometry </b>through particle and voxel representations",
