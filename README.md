@@ -6,6 +6,10 @@ Static site: `index.html` + `media/` + `pan/`. No build step. Everything is plai
 
     cd relight/web/site && python3 -m http.server 8150
 
+## Media v5 (30 Oct)
+
+`../site_media_v5.sh pans|mv|manifest`: box, cloth, marker and rope use the side orbit that starts on the left (`../pan4`), Push-T and plug the teaser-sweep camera (`../pan5`), gains as v4. New picker mode "Three views" = `pan/<task>/multiview.mp4`: dataset camera 0 (overhead), dataset camera 2 (far side of the table) and the task's pan side by side, frame-aligned (`../multiview_fixed.py` through `showcase_videos.sh` -> `../mvfixed/<task>/cam{0,2}.mp4`, composited by the `mv` step). The stage widens to the video's aspect for that mode.
+
 ## Media v3 (29 Oct)
 
 `../site_media_v3.sh` is the current build: teaser v16, `backgrounds.mp4` from `chain_v17` (brightness-only scan colour + per-task exposure gains), the
