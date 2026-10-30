@@ -82,7 +82,7 @@
   },
   "multiview": {
    "label": "Multi-View",
-   "cap": "Side by side: the overhead camera, the camera on the far side of the table, and the moving view. All three are the same prediction."
+   "cap": "Side by side: the top camera, the back camera, and the moving view. All three are the same prediction."
   }
  },
  "pe": {
