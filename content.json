@@ -11,7 +11,7 @@
  "fact2": "<b>Spatially-aligned tactile signals </b>represented as 3D particles",
  "fact3": "<b>3D Geometry </b>through particle and voxel representations",
  "fact4": "",
- "overview_p2": "3D World Simulator enables <span class=\"o\">scalable data generation for policy training and evaluation</span> using visuo-tactile and multi-view observations, including wrist-mounted and novel camera views. The 3D representation space allows for&nbsp;<span class=\"o\">controllable variations in background and robot embodiments</span>. When trained on large-scale data, 3D World Simulator <span class=\"o\">generalizes to diverse objects</span>, enabling downstream model-based planning.",
+ "overview_p2": "3D World Simulator enables <span class=\"o\">scalable data generation for policy training and evaluation</span> using <b>visuo-tactile</b> and <b>multi-view</b> observations, including <b>wrist-mounted</b> and <b>novel camera views</b>. The 3D representation space allows for&nbsp;<span class=\"o\">controllable variations in background and robot embodiments</span>. When trained on large-scale data, 3D World Simulator <span class=\"o\">generalizes to diverse objects</span>, enabling downstream model-based planning.",
  "demo_h": "Interactive demo",
  "demo_p": "Below, you can interact with 3D World Simulator across four robot manipulation tasks, either by using keyboard inputs or via dragging a gizmo to control the robot arms. <br><br>You may also view various features of our model, such as viewing the 3D geometry, novel and multi-view rendered RGB, tactile signals, and intermediate model outputs.&nbsp;",
  "demo_button": "Start interactive demo",
