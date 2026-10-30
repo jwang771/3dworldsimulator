@@ -308,7 +308,7 @@ const MODES = [
   { id: "voxels", label: "Intermediate Upsampled Voxels", cap: "The 128 × 64 × 128 occupancy the decoder produces before the particles." },
   { id: "raw", label: "Raw Model Output", cap: "What the model decodes on its own, including its own version of the arms. No arm splats, no room." },
 ];
-const DEFAULT_MODE = { cloth: "splats", box: "multiview", plug: "points", pusht: "splats", marker: "points", rope_wrist: "points" };
+const DEFAULT_MODE = { cloth: "splats", box: "multiview", plug: "points", pusht: "latents", marker: "points", rope_wrist: "points" };
 let task = "cloth", mode = "splats", vids = {}, cur = null, playing = true;
 TASKS.forEach((t) => { const b = document.createElement("button"); b.role = "tab"; b.innerHTML = `<div class="th"><img src="pan/${t.id}/poster.jpg" alt="" loading="lazy"></div><span>${t.name}</span>`; b.dataset.id = t.id; b.addEventListener("click", () => selectTask(t.id)); $("taskTabs").appendChild(b); });
 MODES.forEach((m) => { const b = document.createElement("button"); b.innerHTML = `<img src="pan/cloth/th_${m.id}.jpg" alt="" loading="lazy"><span>${m.label}</span>`; b.dataset.id = m.id; b.addEventListener("click", () => selectMode(m.id)); $("modeTabs").appendChild(b); });
