@@ -99,14 +99,14 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
 <nav class="rail" id="rail" aria-label="On this page"></nav>
 <main>
   <header>
-    <h1>3D World Simulator</h1>
-    <p class="sub">An action-conditioned world model that predicts in 3D. One predicted scene state gives 3D particles, spatially aligned tactile signals and consistent renderings from any viewpoint, interactively and over long horizons.</p>
-    <p class="authors">Authors here</p>
-    <p class="venue">Affiliation · 2026</p>
+    <h1 data-k="title">3D World Simulator</h1>
+    <p class="sub" data-k="subtitle">An action-conditioned world model that predicts in 3D. One predicted scene state gives 3D particles, spatially aligned tactile signals and consistent renderings from any viewpoint, interactively and over long horizons.</p>
+    <p class="authors" data-k="authors">Authors here</p>
+    <p class="venue" data-k="venue">Affiliation · 2026</p>
     <div class="links"><span>Paper (soon)</span><span>Code (soon)</span><a href="#demo">Interactive demo</a><a href="#rollouts">Rollouts</a><a href="#cite">Citation</a></div>
     <figure>
       <div class="frame"><video data-auto src="media/teaser.mp4" poster="media/teaser.jpg" muted loop playsinline preload="metadata"></video></div>
-      <figcaption><b>Teaser.</b> Interactive use of the cloth model from the keyboard, the model's internal geometry and tactile predictions, four more tasks, a change of room and robot, policies evaluated and trained inside the model, and the same recipe on a larger set of deformable objects.</figcaption>
+      <figcaption data-k="teaser_caption"><b>Teaser.</b> Interactive use of the cloth model from the keyboard, the model's internal geometry and tactile predictions, four more tasks, a change of room and robot, policies evaluated and trained inside the model, and the same recipe on a larger set of deformable objects.</figcaption>
     </figure>
     <div class="contents">
       <h2>Contents</h2>
@@ -115,28 +115,28 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
   </header>
 
   <section id="overview" class="col">
-    <h2><span class="n">1</span>Overview</h2>
-    <p>We introduce 3D World Simulator, a multimodal world model that supports long-horizon interactions at 50+ FPS on an RTX 5090. Our approach involves a hybrid particle-voxel autoencoder and a 3D latent dynamics that utilizes a unified 3D representation space, providing a common interface for several important capabilities:</p>
+    <h2><span class="n">1</span><span data-k="overview_h">Overview</span></h2>
+    <p data-k="overview_p1">We introduce 3D World Simulator, a multimodal world model that supports long-horizon interactions at 50+ FPS on an RTX 5090. Our approach involves a hybrid particle-voxel autoencoder and a 3D latent dynamics that utilizes a unified 3D representation space, providing a common interface for several important capabilities:</p>
     <ul class="facts">
-      <li><b>Multi-view consistent rendering</b><span>from novel viewpoints</span></li>
-      <li><b>Flexible integration</b><span>of spatially-aligned tactile signals</span></li>
-      <li><b>Generation of 3D particles</b><span></span></li>
-      <li><b>Controllable variation</b><span>in backgrounds and robot embodiments</span></li>
+      <li data-k="fact1"><b>Multi-view consistent rendering</b><span>from novel viewpoints</span></li>
+      <li data-k="fact2"><b>Flexible integration</b><span>of spatially-aligned tactile signals</span></li>
+      <li data-k="fact3"><b>Generation of 3D particles</b><span></span></li>
+      <li data-k="fact4"><b>Controllable variation</b><span>in backgrounds and robot embodiments</span></li>
     </ul>
-    <p>3D World Simulator enables scalable data generation for policy training and evaluation using visuo-tactile and multi-view observations, including wrist-mounted and novel camera views. When trained on large-scale data, 3D World Simulator generalizes to diverse objects, enabling downstream model-based planning.</p>
+    <p data-k="overview_p2">3D World Simulator enables scalable data generation for policy training and evaluation using visuo-tactile and multi-view observations, including wrist-mounted and novel camera views. When trained on large-scale data, 3D World Simulator generalizes to diverse objects, enabling downstream model-based planning.</p>
   </section>
 
   <section id="demo">
     <div class="col">
-      <h2><span class="n">2</span>Interactive demo</h2>
-      <p>The cloth model runs on a GPU on Modal and streams its render to the browser. Press start and a container is started for you, which takes about 45 seconds the first time. Then move the arms with the keys below, or drag the handles that appear on the grippers. It is a research demo rather than a product: if you push the arms somewhere the training data never went, the cloth will look strange.</p>
+      <h2><span class="n">2</span><span data-k="demo_h">Interactive demo</span></h2>
+      <p data-k="demo_p">The cloth model runs on a GPU on Modal and streams its render to the browser. Press start and a container is started for you, which takes about 45 seconds the first time. Then move the arms with the keys below, or drag the handles that appear on the grippers. It is a research demo rather than a product: if you push the arms somewhere the training data never went, the cloth will look strange.</p>
     </div>
     <div class="media">
       <div class="demo" id="demoBox">
         <img src="media/teaser.jpg" alt="">
-        <div class="cover" id="demoCover"><button id="demoStart">Start the demo (starts a GPU session)</button></div>
+        <div class="cover" id="demoCover"><button id="demoStart" data-k="demo_button">Start the demo (starts a GPU session)</button></div>
       </div>
-      <div class="keys">
+      <div class="keys" data-k="demo_keys">
         <b>Arm 0</b> <kbd>U</kbd><kbd>O</kbd> up and down, <kbd>I</kbd><kbd>K</kbd> forward and back, <kbd>J</kbd><kbd>L</kbd> left and right. <b>Arm 1</b> <kbd>Q</kbd><kbd>E</kbd>, <kbd>W</kbd><kbd>S</kbd>, <kbd>A</kbd><kbd>D</kbd> the same way. <kbd>H</kbd> opens or closes the gripper. <kbd>R</kbd> restarts from the chosen frame. Drag to orbit the camera, shift-drag to pan, scroll to zoom. <a href="https://jwang771--3dws-demo.us-east.modal.run" target="_blank" rel="noopener">Open the demo in its own tab</a> if the embedded version is too small.
       </div>
     </div>
@@ -144,8 +144,8 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
 
   <section id="rollouts">
     <div class="col">
-      <h2><span class="n">3</span>Multimodal 3D Video Prediction</h2>
-      <p>3D World Simulator supports diverse robot manipulation tasks, spanning deformable objects, articulated objects and in-hand manipulation. Pick a task below to see an open-loop rollout of the model: it is given a few real frames to start from and then runs on its own from the recorded actions. Because the prediction is 3D, the same rollout can be viewed in several ways: rendered from a novel viewpoint, as the predicted 3D particles with their tactile signal, as the intermediate voxel representation, and as the latent representation the dynamics model operates on.</p>
+      <h2><span class="n">3</span><span data-k="rollouts_h">Multimodal 3D Video Prediction</span></h2>
+      <p data-k="rollouts_p">3D World Simulator supports diverse robot manipulation tasks, spanning deformable objects, articulated objects and in-hand manipulation. Pick a task below to see an open-loop rollout of the model: it is given a few real frames to start from and then runs on its own from the recorded actions. Because the prediction is 3D, the same rollout can be viewed in several ways: rendered from a novel viewpoint, as the predicted 3D particles with their tactile signal, as the intermediate voxel representation, and as the latent representation the dynamics model operates on.</p>
     </div>
     <div class="media">
       <div class="picker" id="taskTabs" role="tablist"></div>
@@ -164,19 +164,19 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
 
   <section id="backgrounds">
     <div class="col">
-      <h2><span class="n">4</span>Controllable Variation in Backgrounds and Robot Embodiments</h2>
-      <p>The 3D nature of our model makes it far more controllable and editable than 2D video prediction models. The base model does not rely on segmentation masks, but it can be fine-tuned to predict the manipulated scene on top of a separately captured background, so the prediction and the room become independent assets. This lets us place a rollout in different backgrounds and draw it with different robot embodiments, posed from the model's predicted joint states. And since the output is 3D Gaussians, existing relighting methods apply directly. Below, one box episode is carried through four scanned rooms, the first with the original arms and the rest with a pair of SO-101 arms, ending with four tasks side by side.</p>
+      <h2><span class="n">4</span><span data-k="backgrounds_h">Controllable Variation in Backgrounds and Robot Embodiments</span></h2>
+      <p data-k="backgrounds_p">The 3D nature of our model makes it far more controllable and editable than 2D video prediction models. The base model does not rely on segmentation masks, but it can be fine-tuned to predict the manipulated scene on top of a separately captured background, so the prediction and the room become independent assets. This lets us place a rollout in different backgrounds and draw it with different robot embodiments, posed from the model's predicted joint states. And since the output is 3D Gaussians, existing relighting methods apply directly. Below, one box episode is carried through four scanned rooms, the first with the original arms and the rest with a pair of SO-101 arms, ending with four tasks side by side.</p>
     </div>
     <figure class="media">
       <div class="frame"><video data-auto src="media/backgrounds.mp4" poster="media/backgrounds.jpg" muted loop playsinline preload="metadata"></video></div>
-      <figcaption><b>Rooms and arms.</b> Lab, gallery, warehouse, wood-panelled room and dining room, then the 2 × 2 comparison.</figcaption>
+      <figcaption data-k="backgrounds_caption"><b>Rooms and arms.</b> Lab, gallery, warehouse, wood-panelled room and dining room, then the 2 × 2 comparison.</figcaption>
     </figure>
   </section>
 
   <section id="evaluation">
     <div class="col">
-      <h2><span class="n">5</span>Policy evaluation in the model</h2>
-      <p>A policy can be run inside the model instead of on the robot: we render the camera views the policy expects, it returns an action, and the model predicts what happens next. The model's prediction is detailed enough to tell a success from a failure. For each task we picked one rollout that ends in success and one that does not. For Push-T the goal pose is drawn as an outline; for the cloth we look at whether the towel ends up folded. Plug insertion compares two different policies from the same start.</p>
+      <h2><span class="n">5</span><span data-k="evaluation_h">Policy evaluation in the model</span></h2>
+      <p data-k="evaluation_p">A policy can be run inside the model instead of on the robot: we render the camera views the policy expects, it returns an action, and the model predicts what happens next. The model's prediction is detailed enough to tell a success from a failure. For each task we picked one rollout that ends in success and one that does not. For Push-T the goal pose is drawn as an outline; for the cloth we look at whether the towel ends up folded. Plug insertion compares two different policies from the same start.</p>
     </div>
     <div class="media">
       <div class="tabs" id="peTabs" role="tablist"></div>
@@ -188,19 +188,19 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
 
   <section id="training">
     <div class="col">
-      <h2><span class="n">6</span>Policies trained purely in the model</h2>
-      <p>This one is real footage, not a render. The policies here were trained only on data produced by the world model and are running on the robot, sped up 20×.</p>
+      <h2><span class="n">6</span><span data-k="training_h">Policies trained purely in the model</span></h2>
+      <p data-k="training_p">This one is real footage, not a render. The policies here were trained only on data produced by the world model and are running on the robot, sped up 20×.</p>
     </div>
     <figure class="media">
       <div class="frame"><video data-auto src="media/training.mp4" poster="media/training.jpg" muted loop playsinline preload="metadata"></video></div>
-      <figcaption><b>Real robot.</b> Cloth, plug and Push-T policies trained on model rollouts, executed on the hardware.</figcaption>
+      <figcaption data-k="training_caption"><b>Real robot.</b> Cloth, plug and Push-T policies trained on model rollouts, executed on the hardware.</figcaption>
     </figure>
   </section>
 
   <section id="objects">
     <div class="col">
-      <h2><span class="n">7</span>Scaling to diverse objects</h2>
-      <p>Deform360 is the same kind of model trained on a collection of deformable objects (hats, plush toys, towels, ropes, sleeves). The camera starts on one object and pulls back to show the rest. All of them are predictions.</p>
+      <h2><span class="n">7</span><span data-k="objects_h">Scaling to diverse objects</span></h2>
+      <p data-k="objects_p">Deform360 is the same kind of model trained on a collection of deformable objects (hats, plush toys, towels, ropes, sleeves). The camera starts on one object and pulls back to show the rest. All of them are predictions.</p>
     </div>
     <figure class="media square">
       <div class="frame"><video data-auto src="media/deform360.mp4" poster="media/deform360.jpg" muted loop playsinline preload="metadata"></video></div>
@@ -209,8 +209,8 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
 
   <section id="planning">
     <div class="col">
-      <h2><span class="n">8</span>Downstream planning</h2>
-      <p>Since the model can imagine the result of an action sequence, we can plan with it: sample candidate sequences, roll each one out in the model, and execute the best. The objects here were not in the training data.</p>
+      <h2><span class="n">8</span><span data-k="planning_h">Downstream planning</span></h2>
+      <p data-k="planning_p">Since the model can imagine the result of an action sequence, we can plan with it: sample candidate sequences, roll each one out in the model, and execute the best. The objects here were not in the training data.</p>
     </div>
     <figure class="media">
       <div class="frame"><video data-auto src="media/planning.mp4" poster="media/planning.jpg" muted loop playsinline preload="metadata"></video></div>
@@ -218,8 +218,8 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
   </section>
 
   <section id="cite" class="col">
-    <h2><span class="n">9</span>Citation</h2>
-<pre>@article{3dworldsimulator2026,
+    <h2><span class="n">9</span><span data-k="cite_h">Citation</span></h2>
+<pre data-k="cite">@article{3dworldsimulator2026,
   title   = {3D World Simulator},
   author  = {...},
   journal = {...},
@@ -227,16 +227,18 @@ footer { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line);
 }</pre>
   </section>
 
-  <footer>Videos are rendered from the world model unless stated otherwise. The scanned room, the arm splats and the lighting of the alternative rooms are assets composited around the prediction.</footer>
+  <footer data-k="footer">Videos are rendered from the world model unless stated otherwise. The scanned room, the arm splats and the lighting of the alternative rooms are assets composited around the prediction.</footer>
 </main>
 
 <script>
 const $ = (id) => document.getElementById(id);
 // contents list and the side rail are built from the sections
 const secs = [...document.querySelectorAll("main > section")];
-secs.forEach((s) => { const h = s.querySelector("h2"); const title = h.textContent.replace(/^\d+\s*/, ""); const n = h.querySelector(".n").textContent;
-  const li = document.createElement("li"); li.innerHTML = `<a href="#${s.id}"><span class="n">${n}</span>${title}</a>`; $("toc").appendChild(li);
-  const a = document.createElement("a"); a.href = `#${s.id}`; a.textContent = title; a.dataset.id = s.id; $("rail").appendChild(a); });
+function buildNav() { $("toc").innerHTML = ""; $("rail").innerHTML = "";
+  secs.forEach((s) => { const h = s.querySelector("h2"); const title = h.textContent.replace(/^\d+\s*/, ""); const n = h.querySelector(".n").textContent;
+    const li = document.createElement("li"); li.innerHTML = `<a href="#${s.id}"><span class="n">${n}</span>${title}</a>`; $("toc").appendChild(li);
+    const a = document.createElement("a"); a.href = `#${s.id}`; a.textContent = title; a.dataset.id = s.id; $("rail").appendChild(a); }); }
+buildNav();
 new IntersectionObserver((es) => { es.forEach((e) => { if (e.isIntersecting) document.querySelectorAll("#rail a").forEach((a) => a.classList.toggle("on", a.dataset.id === e.target.id)); }); }, { rootMargin: "-30% 0px -60% 0px" }).observe && secs.forEach((s) => new IntersectionObserver((es) => { es.forEach((e) => { if (e.isIntersecting) document.querySelectorAll("#rail a").forEach((a) => a.classList.toggle("on", a.dataset.id === e.target.id)); }); }, { rootMargin: "-30% 0px -60% 0px" }).observe(s));
 // videos play only while on screen
 const io = new IntersectionObserver((es) => es.forEach((e) => { const v = e.target; if (e.isIntersecting && e.intersectionRatio >= 0.35) { if (v.dataset.user !== "paused") v.play().catch(() => {}); } else v.pause(); }), { threshold: [0, 0.35, 1] });
@@ -291,7 +293,8 @@ function caption() {
   const have = (window.PAN || {})[task] || [];
   document.querySelectorAll("#modeTabs button").forEach((b) => { b.setAttribute("aria-pressed", b.dataset.id === mode ? "true" : "false"); b.disabled = !have.includes(b.dataset.id); });
   const t = TASKS.find((x) => x.id === task), m = MODES.find((x) => x.id === mode);
-  $("rollCap").textContent = have.length ? `${t.cap} ${m.cap}` : `${t.cap} Not rendered yet.`;
+  const C = window.CONTENT || {}; const tc = ((C.tasks || {})[task] || {}).cap || t.cap, mc = ((C.modes || {})[mode] || {}).cap || m.cap;
+  $("rollCap").textContent = have.length ? `${tc} ${mc}` : `${tc} Not rendered yet.`;
 }
 let onScreen = false;
 new IntersectionObserver((es) => { onScreen = es[0].isIntersecting; if (cur) (onScreen && playing ? cur.play().catch(() => {}) : cur.pause()); }, { threshold: 0.25 }).observe($("stage"));
@@ -308,14 +311,15 @@ const PE = {
     cap: "Two evaluation episodes of an ACT policy. Left: the towel ends folded. Right: it ends crumpled." },
 };
 let peTask = "pusht", peView = 0, peVids = [];
-Object.entries(PE).forEach(([k, v]) => { const b = document.createElement("button"); b.role = "tab"; b.textContent = v.name; b.dataset.id = k; b.addEventListener("click", () => { peTask = k; peView = 0; renderPE(); }); $("peTabs").appendChild(b); });
+Object.entries(PE).forEach(([k, v]) => { const b = document.createElement("button"); b.role = "tab"; b.textContent = v.name; b.dataset.name = k; b.dataset.id = k; b.addEventListener("click", () => { peTask = k; peView = 0; renderPE(); }); $("peTabs").appendChild(b); });
 function renderPE() {
   document.querySelectorAll("#peTabs button").forEach((b) => b.setAttribute("aria-selected", b.dataset.id === peTask ? "true" : "false"));
   const T = PE[peTask]; const vt = $("peViews"); vt.innerHTML = ""; vt.hidden = T.views.length < 2;
-  T.views.forEach((v, i) => { const b = document.createElement("button"); b.textContent = v.label; b.setAttribute("aria-pressed", i === peView ? "true" : "false"); b.addEventListener("click", () => { peView = i; renderPE(); }); vt.appendChild(b); });
+  T.views.forEach((v, i) => { const b = document.createElement("button"); b.textContent = ((((window.CONTENT || {}).pe || {})[peTask] || {}).views || {})[v.id] || v.label; b.setAttribute("aria-pressed", i === peView ? "true" : "false"); b.addEventListener("click", () => { peView = i; renderPE(); }); vt.appendChild(b); });
   const v = T.views[peView]; peVids.forEach((x) => x.pause());
-  $("pePair").innerHTML = ["ok", "bad"].map((k) => `<div class="cell"><div class="frame" style="--ar:${v.ar}"><video src="${v[k]}" muted loop playsinline preload="auto"></video></div><div class="tag ${k}">${k === "ok" ? "Success" : "Failure"}</div></div>`).join("");
-  $("peCap").textContent = T.cap; peVids = [...$("pePair").querySelectorAll("video")]; let n = 0;
+  const PL = ((window.CONTENT || {}).pe_labels) || { ok: "Success", bad: "Failure" };
+  $("pePair").innerHTML = ["ok", "bad"].map((k) => `<div class="cell"><div class="frame" style="--ar:${v.ar}"><video src="${v[k]}" muted loop playsinline preload="auto"></video></div><div class="tag ${k}">${PL[k]}</div></div>`).join("");
+  const C = window.CONTENT || {}; $("peCap").textContent = (((C.pe || {})[peTask] || {}).cap) || T.cap; peVids = [...$("pePair").querySelectorAll("video")]; let n = 0;
   peVids.forEach((x) => x.addEventListener("canplaythrough", () => { if (++n === peVids.length) peVids.forEach((y) => { y.currentTime = 0; if (peOn) y.play().catch(() => {}); }); }, { once: true }));
 }
 let peOn = false;
@@ -325,5 +329,70 @@ renderPE();
 </script>
 <script src="pan/manifest.js"></script>
 <script>selectTask(task);</script>
+<script>
+// ---- text content: content.json is the source of truth for every text on the page; the HTML holds the same text as a fallback.
+// ---- edit mode: open the page with #edit, click any text and type, then Publish (commits content.json to GitHub from the browser; Pages rebuilds in about a minute).
+const REPO = "jwang771/3dworldsimulator", FILE = "content.json";
+function applyContent(C) {
+  window.CONTENT = C;
+  document.querySelectorAll("[data-k]").forEach((el) => { const k = el.dataset.k; if (typeof C[k] === "string") el.innerHTML = C[k]; });
+  document.querySelectorAll("#taskTabs button").forEach((b) => { const t = (C.tasks || {})[b.dataset.id]; if (t && t.name) b.querySelector("span").textContent = t.name; });
+  document.querySelectorAll("#modeTabs button").forEach((b) => { const m = (C.modes || {})[b.dataset.id]; if (m && m.label) b.textContent = m.label; });
+  document.querySelectorAll("#peTabs button").forEach((b) => { const t = (C.pe || {})[b.dataset.name]; if (t && t.name) b.textContent = t.name; });
+  buildNav(); caption(); renderPE();
+}
+fetch(`${FILE}?t=${Date.now()}`, { cache: "no-store" }).then((r) => r.ok ? r.json() : null).then((C) => { if (C) applyContent(C); if (location.hash === "#edit") editMode(); }).catch(() => { if (location.hash === "#edit") editMode(); });
+window.addEventListener("hashchange", () => { if (location.hash === "#edit" && !document.body.classList.contains("editing")) editMode(); });
+function editMode() {
+  document.body.classList.add("editing");
+  const css = document.createElement("style"); css.textContent = `
+    .editing [data-k] { outline: 1px dashed #c7a600; outline-offset: 3px; border-radius: 2px; min-height: 1em; }
+    .editing [data-k]:focus { outline: 2px solid #1a1a1a; background: #fffbe6; }
+    .editing .picker button span[contenteditable], .editing #modeTabs button[contenteditable], .editing #peTabs button[contenteditable], .editing #rollCap[contenteditable], .editing #peCap[contenteditable] { outline: 1px dashed #c7a600; outline-offset: 3px; }
+    #editbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; background: #1a1a1a; color: #fff; font-size: 14px; padding: 10px 16px; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; box-shadow: 0 -2px 12px rgba(0,0,0,.25); }
+    #editbar input { font: inherit; padding: 5px 8px; border-radius: 3px; border: 1px solid #555; background: #2a2a2a; color: #fff; min-width: 260px; }
+    #editbar button { font: inherit; padding: 6px 14px; border-radius: 3px; border: 1px solid #fff; background: #fff; color: #1a1a1a; cursor: pointer; }
+    #editbar button.q { background: none; color: #fff; }
+    #editbar .st { color: #bbb; } #editbar .st.ok { color: #8fd694; } #editbar .st.bad { color: #ff9c8f; }
+    body.editing { padding-bottom: 70px; }`;
+  document.head.appendChild(css);
+  const bar = document.createElement("div"); bar.id = "editbar";
+  bar.innerHTML = `<b>Editing</b><span class="st" id="editStatus">Click any text and type. Captions of the rollout and evaluation sections are edited where they appear.</span>
+    <span style="flex:1"></span><input id="ghTok" type="password" placeholder="GitHub token (stays in this browser)"><button id="pub">Publish</button><button class="q" id="dl">Download content.json</button><button class="q" id="quit">Done</button>`;
+  document.body.appendChild(bar);
+  try { $("ghTok").value = localStorage.getItem("ghTok") || ""; } catch (e) {}
+  $("ghTok").addEventListener("change", () => { try { localStorage.setItem("ghTok", $("ghTok").value.trim()); } catch (e) {} });
+  document.querySelectorAll("[data-k]").forEach((el) => { el.contentEditable = "true"; el.spellcheck = true; if (el.tagName === "BUTTON" || el.tagName === "A") el.addEventListener("click", (e) => e.preventDefault()); });
+  document.querySelectorAll("[data-k] a").forEach((a) => a.addEventListener("click", (e) => e.preventDefault()));
+  // captions of the current task / mode / evaluation tab are edited in place; the name labels of the tabs too
+  const live = () => { ["rollCap", "peCap"].forEach((id) => { $(id).contentEditable = "true"; });
+    document.querySelectorAll("#taskTabs button span, #modeTabs button, #peTabs button, #peViews button").forEach((b) => { b.contentEditable = "true"; }); };
+  live(); new MutationObserver(live).observe($("peViews"), { childList: true });
+  $("rollCap").addEventListener("input", () => { const C = window.CONTENT; const full = $("rollCap").textContent; const m = ((C.modes || {})[mode] || {}); const mc = m.cap || ""; 
+    if (mc && full.endsWith(mc)) { C.tasks[task].cap = full.slice(0, full.length - mc.length).trim(); } else if (full.startsWith((C.tasks[task] || {}).cap || "\u0000")) { C.modes[mode].cap = full.slice(C.tasks[task].cap.length).trim(); } else { C.tasks[task].cap = full.trim(); C.modes[mode].cap = ""; } });
+  $("peCap").addEventListener("input", () => { window.CONTENT.pe[peTask].cap = $("peCap").textContent.trim(); });
+  document.addEventListener("input", (e) => { const t = e.target; const C = window.CONTENT; if (!C) return;
+    if (t.matches("#taskTabs button span")) C.tasks[t.parentElement.dataset.id].name = t.textContent.trim();
+    if (t.matches("#modeTabs button")) C.modes[t.dataset.id].label = t.textContent.trim();
+    if (t.matches("#peTabs button")) C.pe[t.dataset.name].name = t.textContent.trim();
+    if (t.matches("#peViews button")) { const i = [...t.parentElement.children].indexOf(t); const vid = PE[peTask].views[i].id; C.pe[peTask].views[vid] = t.textContent.trim(); } });
+  const collect = () => { const C = Object.assign({}, window.CONTENT || {}); document.querySelectorAll("[data-k]").forEach((el) => { C[el.dataset.k] = el.innerHTML.trim(); }); return C; };
+  const status = (msg, cls) => { const s = $("editStatus"); s.textContent = msg; s.className = "st " + (cls || ""); };
+  $("dl").addEventListener("click", () => { const blob = new Blob([JSON.stringify(collect(), null, 1)], { type: "application/json" }); const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = FILE; a.click(); });
+  $("quit").addEventListener("click", () => { location.hash = ""; location.reload(); });
+  $("pub").addEventListener("click", async () => {
+    const tok = $("ghTok").value.trim(); if (!tok) { status("Paste a GitHub token first (Settings > Developer settings > Fine-grained tokens, Contents: read and write on this repo).", "bad"); return; }
+    const C = collect(); const body = JSON.stringify(C, null, 1); status("Publishing…");
+    const H = { Authorization: `Bearer ${tok}`, Accept: "application/vnd.github+json", "Content-Type": "application/json" };
+    try {
+      const cur = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`, { headers: H }); const sha = cur.ok ? (await cur.json()).sha : undefined;
+      const b64 = btoa(unescape(encodeURIComponent(body)));
+      const r = await fetch(`https://api.github.com/repos/${REPO}/contents/${FILE}`, { method: "PUT", headers: H, body: JSON.stringify({ message: "Edit text on the site", content: b64, sha }) });
+      if (!r.ok) throw new Error(`${r.status} ${(await r.json()).message || ""}`);
+      window.CONTENT = C; status("Published. The live page updates within a minute or two (hard-reload if it looks unchanged).", "ok");
+    } catch (e) { status(`Could not publish: ${e.message}`, "bad"); }
+  });
+}
+</script>
 </body>
 </html>

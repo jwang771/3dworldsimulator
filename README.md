@@ -6,6 +6,15 @@ Static site: `index.html` + `media/` + `pan/`. No build step. Everything is plai
 
     cd relight/web/site && python3 -m http.server 8150
 
+## Editing the text on the page
+
+All text lives in `content.json` (the HTML carries the same text as a fallback). Two ways to change it:
+
+1. **On the page.** Open https://jwang771.github.io/3dworldsimulator/#edit (or the same `#edit` on the local preview). Every text block gets a dashed outline; click into it and type. Headings, captions, the task and mode labels, and the evaluation captions are all editable where they appear. Then paste a GitHub token into the bar at the bottom and press **Publish**: the browser commits `content.json` to the repo and Pages republishes within a minute or two. The token is kept only in that browser's local storage. Make one at GitHub > Settings > Developer settings > Fine-grained tokens, repository `3dworldsimulator`, permission *Contents: read and write*, nothing else. **Download content.json** saves the edited file instead, and **Done** leaves edit mode.
+2. **In the file.** Edit `content.json` in GitHub's editor (press `.` on the repo page) and commit. Values are HTML strings; keep tags such as `<b>`, `<kbd>` and `<a>` as they are.
+
+Layout, media files and links are not in `content.json`; those are still edits to `index.html`. After editing online, `git pull` on corsair before regenerating media there.
+
 ## Media v5 (30 Oct)
 
 `../site_media_v5.sh pans|mv|manifest`: box, cloth, marker and rope use the side orbit that starts on the left (`../pan4`), Push-T and plug the teaser-sweep camera (`../pan5`), gains as v4. New picker mode "Three views" = `pan/<task>/multiview.mp4`: dataset camera 0 (overhead), dataset camera 2 (far side of the table) and the task's pan side by side, frame-aligned (`../multiview_fixed.py` through `showcase_videos.sh` -> `../mvfixed/<task>/cam{0,2}.mp4`, composited by the `mv` step). The stage widens to the video's aspect for that mode.

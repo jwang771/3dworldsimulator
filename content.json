@@ -1,0 +1,118 @@
+{
+ "_help": "Text of the website. Edit on the page itself with #edit (see README), or here. Values are HTML; keep tags like <b>, <kbd>, <a> as they are.",
+ "title": "3D World Simulator",
+ "subtitle": "An action-conditioned world model that predicts in 3D. One predicted scene state gives 3D particles, spatially aligned tactile signals and consistent renderings from any viewpoint, interactively and over long horizons.",
+ "authors": "Authors here",
+ "venue": "Affiliation · 2026",
+ "teaser_caption": "<b>Teaser.</b> Interactive use of the cloth model from the keyboard, the model's internal geometry and tactile predictions, four more tasks, a change of room and robot, policies evaluated and trained inside the model, and the same recipe on a larger set of deformable objects.",
+ "overview_h": "Overview",
+ "overview_p1": "We introduce 3D World Simulator, a multimodal world model that supports long-horizon interactions at 50+ FPS on an RTX 5090. Our approach involves a hybrid particle-voxel autoencoder and a 3D latent dynamics that utilizes a unified 3D representation space, providing a common interface for several important capabilities:",
+ "fact1": "<b>Multi-view consistent rendering</b><span>from novel viewpoints</span>",
+ "fact2": "<b>Flexible integration</b><span>of spatially-aligned tactile signals</span>",
+ "fact3": "<b>Generation of 3D particles</b><span></span>",
+ "fact4": "<b>Controllable variation</b><span>in backgrounds and robot embodiments</span>",
+ "overview_p2": "3D World Simulator enables scalable data generation for policy training and evaluation using visuo-tactile and multi-view observations, including wrist-mounted and novel camera views. When trained on large-scale data, 3D World Simulator generalizes to diverse objects, enabling downstream model-based planning.",
+ "demo_h": "Interactive demo",
+ "demo_p": "The cloth model runs on a GPU on Modal and streams its render to the browser. Press start and a container is started for you, which takes about 45 seconds the first time. Then move the arms with the keys below, or drag the handles that appear on the grippers. It is a research demo rather than a product: if you push the arms somewhere the training data never went, the cloth will look strange.",
+ "demo_button": "Start the demo (starts a GPU session)",
+ "demo_keys": "<b>Arm 0</b> <kbd>U</kbd><kbd>O</kbd> up and down, <kbd>I</kbd><kbd>K</kbd> forward and back, <kbd>J</kbd><kbd>L</kbd> left and right. <b>Arm 1</b> <kbd>Q</kbd><kbd>E</kbd>, <kbd>W</kbd><kbd>S</kbd>, <kbd>A</kbd><kbd>D</kbd> the same way. <kbd>H</kbd> opens or closes the gripper. <kbd>R</kbd> restarts from the chosen frame. Drag to orbit the camera, shift-drag to pan, scroll to zoom. <a href=\"https://jwang771--3dws-demo.us-east.modal.run\" target=\"_blank\" rel=\"noopener\">Open the demo in its own tab</a> if the embedded version is too small.",
+ "rollouts_h": "Multimodal 3D Video Prediction",
+ "rollouts_p": "3D World Simulator supports diverse robot manipulation tasks, spanning deformable objects, articulated objects and in-hand manipulation. Pick a task below to see an open-loop rollout of the model: it is given a few real frames to start from and then runs on its own from the recorded actions. Because the prediction is 3D, the same rollout can be viewed in several ways: rendered from a novel viewpoint, as the predicted 3D particles with their tactile signal, as the intermediate voxel representation, and as the latent representation the dynamics model operates on.",
+ "backgrounds_h": "Controllable Variation in Backgrounds and Robot Embodiments",
+ "backgrounds_p": "The 3D nature of our model makes it far more controllable and editable than 2D video prediction models. The base model does not rely on segmentation masks, but it can be fine-tuned to predict the manipulated scene on top of a separately captured background, so the prediction and the room become independent assets. This lets us place a rollout in different backgrounds and draw it with different robot embodiments, posed from the model's predicted joint states. And since the output is 3D Gaussians, existing relighting methods apply directly. Below, one box episode is carried through four scanned rooms, the first with the original arms and the rest with a pair of SO-101 arms, ending with four tasks side by side.",
+ "backgrounds_caption": "<b>Rooms and arms.</b> Lab, gallery, warehouse, wood-panelled room and dining room, then the 2 × 2 comparison.",
+ "evaluation_h": "Policy evaluation in the model",
+ "evaluation_p": "A policy can be run inside the model instead of on the robot: we render the camera views the policy expects, it returns an action, and the model predicts what happens next. The model's prediction is detailed enough to tell a success from a failure. For each task we picked one rollout that ends in success and one that does not. For Push-T the goal pose is drawn as an outline; for the cloth we look at whether the towel ends up folded. Plug insertion compares two different policies from the same start.",
+ "training_h": "Policies trained purely in the model",
+ "training_p": "This one is real footage, not a render. The policies here were trained only on data produced by the world model and are running on the robot, sped up 20×.",
+ "training_caption": "<b>Real robot.</b> Cloth, plug and Push-T policies trained on model rollouts, executed on the hardware.",
+ "objects_h": "Scaling to diverse objects",
+ "objects_p": "Deform360 is the same kind of model trained on a collection of deformable objects (hats, plush toys, towels, ropes, sleeves). The camera starts on one object and pulls back to show the rest. All of them are predictions.",
+ "planning_h": "Downstream planning",
+ "planning_p": "Since the model can imagine the result of an action sequence, we can plan with it: sample candidate sequences, roll each one out in the model, and execute the best. The objects here were not in the training data.",
+ "cite_h": "Citation",
+ "cite": "@article{3dworldsimulator2026,\n  title   = {3D World Simulator},\n  author  = {...},\n  journal = {...},\n  year    = {2026}\n}",
+ "footer": "Videos are rendered from the world model unless stated otherwise. The scanned room, the arm splats and the lighting of the alternative rooms are assets composited around the prediction.",
+ "tasks": {
+  "cloth": {
+   "name": "Cloth",
+   "cap": "Towel folding, episode 1010."
+  },
+  "box": {
+   "name": "Box",
+   "cap": "Box handling, episode 2013."
+  },
+  "plug": {
+   "name": "Plug",
+   "cap": "Plug insertion, episode 31. One arm holds the socket."
+  },
+  "pusht": {
+   "name": "Push-T",
+   "cap": "Push-T, episode 113."
+  },
+  "marker": {
+   "name": "Marker",
+   "cap": "Marker placement, episode 48."
+  },
+  "rope_wrist": {
+   "name": "Rope",
+   "cap": "Rope through a pad eye, episode 24."
+  }
+ },
+ "modes": {
+  "splats": {
+   "label": "Render",
+   "cap": "Full render: decoded Gaussians, arm splats, scanned room."
+  },
+  "points": {
+   "label": "Particles",
+   "cap": "Everything as points; the tactile pads light up on contact."
+  },
+  "latents": {
+   "label": "Latent grid",
+   "cap": "Occupied cells of the 64 × 32 × 64 latent grid, coloured by their first principal component."
+  },
+  "voxels": {
+   "label": "Voxels",
+   "cap": "The 128 × 64 × 128 occupancy the decoder produces before the particles."
+  },
+  "raw": {
+   "label": "Model output only",
+   "cap": "What the model decodes on its own, including its own version of the arms. No arm splats, no room."
+  },
+  "multiview": {
+   "label": "Three views",
+   "cap": "Side by side: the overhead camera, the camera on the far side of the table, and the moving view. All three are the same prediction."
+  }
+ },
+ "pe": {
+  "pusht": {
+   "name": "Push-T",
+   "cap": "Diffusion Policy, seen through the camera crop the policy uses. Left: the T ends on the goal outline. Right: a policy trained on simulated data stops short.",
+   "views": {
+    "cam0": "Policy camera"
+   }
+  },
+  "plug": {
+   "name": "Plug",
+   "cap": "Two policies' logged actions from the same start, replayed in the model. The wrist view is rendered from the predicted wrist pose.",
+   "views": {
+    "cam1": "Static camera",
+    "wrist": "Wrist camera"
+   }
+  },
+  "cloth": {
+   "name": "Cloth",
+   "cap": "Two evaluation episodes of an ACT policy. Left: the towel ends folded. Right: it ends crumpled.",
+   "views": {
+    "cam1": "Static camera",
+    "wrist3": "Wrist camera, arm 0",
+    "wrist4": "Wrist camera, arm 1"
+   }
+  }
+ },
+ "pe_labels": {
+  "ok": "Success",
+  "bad": "Failure"
+ }
+}
